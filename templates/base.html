@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static '/css/styles.css' %}">
+    <title>
+        {% block title %}
+            Карточки
+        {% endblock %}
+
+    </title>
+</head>
+
+
+<body>
+
+<nav class="navbar navbar-light bg-light">
+  <span class="navbar-brand mt-1"><h3>КАРТОЧКИ</h3></span>
+
+    <div class="navbar-brand mr"><h5>отдел: {{ dept_number }}</h5></div>
+    <div class="navbar-brand mr"><h5>
+        {% if user_name %}
+           имя: {{ user_name }}
+        {% else %}
+            <a href="\login">войти</a>
+        {% endif %}
+        </h5></div>
+</nav>
+
+{% block create-panel %}
+        <div class="create-panel align-items-center">
+            <button type="button" class="btn btn-success"  aria-haspopup="true" aria-expanded="false">+</button>
+            <button type="button" class="btn btn-outline-info"  aria-haspopup="true" aria-expanded="false">=</button>
+         </div>
+
+{% endblock %}
+
+<div class="container mt-1">
+    <nav class="navbar navbar-light">
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" href="/tickets/news">Новые {% if updates %}<span class="badge badge-info">new:{{updates}}</span> {% endif %}</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Темы</a>
+                <div class="dropdown-menu">
+                      <a class="dropdown-item" href="#">Тема1</a>
+                      <a class="dropdown-item" href="#">Тема2</a>
+                      <a class="dropdown-item" href="#">Тема3</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">План</a>
+                <div class="dropdown-menu">
+                      <a class="dropdown-item" href="#">На эту неделю</a>
+                      <a class="dropdown-item" href="#">На две недели</a>
+                      <a class="dropdown-item" href="#">На месяц</a>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Отчет</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin">Архив</a>          <!- откорректировать ссылку -/!>
+            </li>
+        </ul>
+
+                <form class="form-inline my-2 my-lg-0" action ="#">
+                    <input class="form-control mr-sm-2" type="search" placeholder="найти..." name="search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Найти</button>
+                </form>
+
+    </nav>
+</div>
+
+    <div class="container mt-1">
+
+        {% block content %}
+            таблица карточек пуста
+        {% endblock %}
+    </div>
+
+
+</body>
+</html>

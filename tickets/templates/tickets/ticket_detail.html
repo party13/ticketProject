@@ -1,0 +1,57 @@
+{% extends 'base.html'  %}
+
+        {% block title %}
+            Подробности - карточка № {{ ticket.number }}
+        {% endblock %}
+
+        {% block content %}
+                <div class="col-8 offset-md-2">
+                        <table class="table">
+                                <tbody>
+                                <tr class = "alert alert-success" align="center">
+                                        <th> <p align="center"> Kарточка №  {{ ticket.number }}-813274618293</p></th>
+                                        <th>status</th>
+                                </tr>
+                                </tbody>
+                        </table>
+                        <table class="table table-borderless">
+                                <tbody>
+                                <tr>
+                                        <th> Исполнитель</th>
+                                        <th> <button type="button" class="btn btn-success">подписать</button> </th>
+                                        <th> Потребитель </th>
+                                        <th> <button type="button" class="btn btn-success">подписать</button> </th>
+                                </tr>
+                                <tr>
+                                        <th> {{ ticket.get_ticket_responsible }}</th>
+                                        <th align="left"> тел. {{ ticket.get_resp_phone }} </th>
+                                        <th> {{ ticket.get_ticket_customer }}</th>
+                                        <th align="left"> тел. {{ ticket.get_custom_phone}} </th>
+                                </tr>
+                                </tbody>
+                        </table>
+
+                        <hr>
+                        <h6>Тема: {{ ticket.theme }}</h6>
+                        <hr>
+                        <p>  {{ ticket.job }} </p>
+                        <hr>
+                        <p {% if ticket.ticket_is_out_of_term %} class = "alert alert-danger" {% endif %}> срок : {{ ticket.get_ticket_term }}  - {{ ticket.get_ticket_expiration }}</p>
+                        <hr>
+                        <p> Отчетные материалы: </p>
+                        <p> {% if ticket.reports %} {{ ticket.reports }} {% else %} NO REPORTS YET {% endif %}</p>
+                        <form class="form-inline">
+                          <div class="form-row">
+                            <label for="exampleFormControlFile1">Вложить файл:</label>
+                              <div class="col-auto">
+                                <input type="file" class="form-control-file" id="exampleFormControlFile1">
+                              </div>
+                              <div class="col-auto" align="right">
+                                 <button type="submit" class="btn btn-primary mb-2">Прикрепить</button>
+                              </div>
+                          </div>
+                        </form>
+                        <hr>
+                </div>
+        {% endblock %}
+

@@ -1,0 +1,16 @@
+.create-panel {
+    border : 1px solid #345;
+    border-radius : 2px;
+    position: fixed;
+    left: 5px;
+    top: 80px;
+    opacity: 0.3;
+    padding :10px;
+}
+.create-panel:hover {
+    opacity :1;
+}
+.create-panel a{
+    display: block;
+    margin: 3px 0;
+}

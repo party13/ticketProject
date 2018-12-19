@@ -1,0 +1,52 @@
+{% extends 'base.html'  %}
+
+        {% block title %}
+            Список карточек
+        {% endblock %}
+
+        {% block content %}
+            {% if tickets %}
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th scope="col">Номер </th>
+                      <th scope="col">Тема</th>
+                      <th scope="col">Содержание     </th>
+                      <th scope="col">Потребитель</th>
+                      <th scope="col">Ответственный</th>
+                      <th scope="col">Срок</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                        {% for ticket in tickets%}
+                            <tr>
+                              <td> {{ ticket.number }} </td>
+                              <td> {{ ticket.theme }}  </td>
+                              <td><a class="" data-toggle="collapse" href="#collapseText-{{ticket.number}}" aria-expanded="false" aria-controls="collapseText-{{ticket.number}}">
+                                  {{ ticket.get_ticket_title }} </a>
+                                  <div class="collapse" id="collapseText-{{ticket.number}}">
+                                        <p>
+                                             {{ ticket.get_other_job }}
+                                        </p>
+                                  </div>
+                              </td>
+                              <td>{{ ticket.get_ticket_customer }}</td>
+                              <td>{{ ticket.get_ticket_responsible}} </td>
+                              <td {% if ticket.ticket_is_out_of_term %} class = "alert alert-danger" {% endif %} >{{ ticket.get_ticket_term }} </td>
+                              <td><a href="{{ ticket.get_ticket_url }}" class="badge badge-pill badge-primary" data-toggle="tooltip" data-placement="top" title="Подробнее...">. . .</a></td>
+                            </tr>
+
+                        {% endfor %}
+                  </tbody>
+                </table>
+
+            {% else %}
+
+                <hr>
+                <h4>Здесь будут отображаться ваши карточки </h4>
+
+            {% endif %}
+
+
+        {% endblock %}
+
