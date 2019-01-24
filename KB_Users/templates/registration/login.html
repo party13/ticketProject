@@ -1,0 +1,36 @@
+
+{% if form.errors %}
+<p>Ваш пароль (password) и имя пользователя (UserName) не совпадают.
+  Пожалуйста попробуйте снова.</p>
+<p>Обратите Ваше внимание, что при входе на сайт используется UserName, а не Фамилия Имя Отчество</p>
+{% endif %}
+
+{% if next %}
+    {% if user.is_authenticated %}
+
+    <p>Увас нет доступа к запрашиваемой странице.
+    Пожауйста зайдите с правами администратора</p>
+    {% else %}
+    <p>Чтобы увидеть эту страницу,пожалуйста войдите в свой профиль</p>
+    {% endif %}
+{% endif %}
+
+<form method="post" action="{% url 'login_url' %}">
+{% csrf_token %}
+<table>
+<tr>
+    <td>{{ form.username.label_tag }}</td>
+    <td>{{ form.username }}</td>
+</tr>
+<tr>
+    <td>{{ form.password.label_tag }}</td>
+    <td>{{ form.password }}</td>
+</tr>
+</table>
+
+<input type="submit" value="login">
+<input type="hidden" name="next" value="{{ next }}">
+</form>
+
+<p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+
