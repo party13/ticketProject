@@ -21,5 +21,7 @@ from django.urls import include
 urlpatterns = [
     path('', redirect_index),
     path('admin/', admin.site.urls),
-    path('tickets/', include('tickets.urls'))
+    path('tickets/', include('tickets.urls')),
+    path('users/', include('KB_Users.urls')),
+
 ]

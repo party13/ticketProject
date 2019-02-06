@@ -33,6 +33,3 @@ class ResetPasswordForm(PasswordResetForm):
         user.set_password(new_password)
         user.save()
         email_message.send()
-
-
-

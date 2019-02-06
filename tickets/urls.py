@@ -1,12 +1,14 @@
-from django.urls import path
+from django.urls import path, include
+from django.contrib.auth import views as auth_views
 from .views import *
 
 
 
 urlpatterns = [
     path('', index_page, name='index_page'),
-    path('news/', tickets_list),
-    path('ticket/<str:number>/', TicketDetail.as_view(), name='ticket_detail_url')
-
+    path('search/', search_results, name='search_results_url'),
+    path('news/', TicketsList.as_view(), name='news_list' ),
+    path('ticket/<str:number>/', TicketDetail.as_view(), name='ticket_detail_url'),
+    path('plan/', TicketPlan.as_view() ),
 
 ]
