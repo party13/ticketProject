@@ -1,0 +1,65 @@
+{% extends "admin/change_list.html"  %}
+{% load i18n admin_urls static admin_list %}
+
+{% block extrastyle %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/departments-tree.css' %}">
+{% endblock %}
+	<!-- additional custom functionality-->
+	<!--<script type="text/javascript" src="admin/js/jquery-3.3.1.js"></script>-->
+	<!-- <script type="text/javascript" src="admin/js/new_admin_functionality.js"></script>-->
+{% load staticfiles %}
+{% block extrahead %}
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+
+
+        jQuery('document').ready(function(){
+
+            console.log('loaded newFunctionality');
+            var s1 = document.querySelector('.actions select');
+            var b1 = document.querySelector('.actions button');
+
+            s1.addEventListener('change', onActionChange);
+
+            function onActionChange(){
+                if (s1.value === 'delete_selected' ){
+                    b1.textContent = 'Удалить';	 }
+                else if(s1.value==='move_to_department'){
+                    b1.textContent = 'Перевести';
+                }
+            }
+
+            var res = document.querySelector('.results');
+            var names = document.getElementsByClassName('field-departmentName');
+            var path = document.getElementsByClassName('field-path');
+            var link = names[1].querySelector('a').getAttribute('href');
+            var d1 = document.createElement('div');
+            d1.innerHtml = '<h2>tree wiil be here</h2>';
+            var text = 'LIST:';
+
+            //var rows = document.getElementsById
+            var checks = document.getElementsByClassName('action-checkbox');
+
+
+
+            console.log('op:');
+            var i=0
+            {% for item in cl.queryset %}
+                var new_div = document.createElement('div');
+                new_div.setAttribute('class', 'lvl-{{item.get_deep}}');
+                //new_div.insertAdjacentElement('afterBegin', checks[i]) ;
+                new_div.insertAdjacentHTML('beforeEnd', '<p><a href="http://127.0.0.1:5000/admin/tickets/department/{{item.pk}}/change/">{{ item.departmentName }}') ;
+                res.insertAdjacentElement('beforeEnd', new_div);
+                console.log("department : {{item.departmentName }} added");
+                i++;
+            {% endfor %}
+
+            // tbl.hidden = true;
+        });
+    </script>
+
+{% endblock %}
+
+
+
