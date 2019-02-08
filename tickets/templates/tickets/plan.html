@@ -1,7 +1,7 @@
 {% extends 'base.html'  %}
 
         {% block title %}
-            Список карточек
+            ПЛАН на {{days}} дней
         {% endblock %}
 
         {% block content %}
@@ -18,7 +18,8 @@
                     </tr>
                   </thead>
                   <tbody>
-                        {% for ticket in tickets%}
+                     <h4>Ваш план на ближайшие {{days}} дней </h4>
+                        {% for ticket in tickets %}
                             <tr>
                               <td> {{ ticket.number }} </td>
                               <td> {{ ticket.theme }}  </td>
@@ -47,7 +48,7 @@
             {% else %}
 
                 <hr>
-                <h4>Здесь будут отображаться ваши карточки </h4>
+                <h4>Здесь будет отображаться ваш план </h4>
                 <hr>
 
             {% endif %}

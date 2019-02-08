@@ -184,3 +184,8 @@ class Ticket(models.Model):
     def get_consum_phone(self):
         consum_user = self.consumer
         return consum_user.phone
+
+    def get_new_number(self,num):
+        while num in range(1000):
+            yield num
+        num+=1

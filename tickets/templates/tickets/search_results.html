@@ -1,11 +1,14 @@
 {% extends 'base.html'  %}
 
         {% block title %}
-            Список карточек
+            Результаты поиска
         {% endblock %}
 
         {% block content %}
+            <h4>Результаты поиска по запросу <strong>"{{search_text}}"</strong></h4>
+
             {% if tickets %}
+              <p>  {{text_result}} : </p>
                 <table class="table table-bordered">
                   <thead>
                     <tr>
@@ -47,7 +50,7 @@
             {% else %}
 
                 <hr>
-                <h4>Здесь будут отображаться ваши карточки </h4>
+                <p>Результатов по вашему запросу не найдено </p>
                 <hr>
 
             {% endif %}

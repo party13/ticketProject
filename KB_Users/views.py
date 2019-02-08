@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 
-from.models import UserKB
+from .models import UserKB
+from .forms import ResetPasswordForm
 from django.contrib.auth import logout, login
 from django.views.generic import View
 from django.db.models import Q

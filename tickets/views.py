@@ -1,6 +1,9 @@
 # Create your views here.
 from django.shortcuts import render, redirect
+# from django.views.generic.simple import
 from .models import Ticket, News
+from .forms import CreateTicketForm
+
 from django.views.generic import View
 from django.db.models import Q
 from datetime import date, timedelta
@@ -95,7 +98,6 @@ class TicketsList(View):
 
 
 class TicketDetail(View):
-
     def get(self, request, number):
         #ticket = get_object_or_404(Ticket, number__iexact=number)
 
@@ -115,7 +117,6 @@ class TicketDetail(View):
 
 
 class TicketPlan(View):
-
     def get(self, request):
         days = request.GET.get('plan', '')
         if request.user.is_authenticated:
@@ -131,3 +132,31 @@ class TicketPlan(View):
                    }
 
         return render(request, 'tickets/plan.html', context=context)
+
+
+class CreateTicket(View):
+    template = 'tickets/ticket_create_form.html'
+    def get(self, request):
+        form = CreateTicketForm ()
+
+        return render( request, self.template, context={'form': form, 'user': request.user, })
+
+    def post(self, request):
+        form = CreateTicketForm(request.POST)
+        user = request.user
+        if form.is_valid():
+            data = form.cleaned_data
+            print('valid')
+            print(data)
+            new_ticket = form.save(commit=False)
+            new_ticket.consumer = user
+            new_ticket.osn = 'Поручение от {}'.format(user)
+            new_ticket.number = 10  # hardcoded unique number to chnage later
+
+            print(new_ticket.__dict__.values())
+
+
+            # print(new_ticket)
+            new_ticket.save()
+            return redirect('index_page')
+        return redirect(request, self.template, context={'form': form})

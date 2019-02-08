@@ -6,11 +6,13 @@
 
         {% block content %}
                 <div class="col-8 offset-md-2">
+
                         <table class="table">
                                 <tbody>
                                 <tr class = "alert alert-success" align="center">
                                         <th> <p align="center"> Kарточка №  {{ ticket.number }}-813274618293</p></th>
-                                        <th>status</th>
+                                        <th>{% if ticket.isRead %} прочитана {% else %}новая!{% endif %}</th>
+                                        <th>{{ ticket.status }}</th>
                                 </tr>
                                 </tbody>
                         </table>
@@ -26,7 +28,7 @@
                                         <th> {{ ticket.get_ticket_responsible }}</th>
                                         <th align="left"> тел. {{ ticket.get_resp_phone }} </th>
                                         <th> {{ ticket.get_ticket_customer }}</th>
-                                        <th align="left"> тел. {{ ticket.get_custom_phone}} </th>
+                                        <th align="left"> тел. {{ ticket.get_custom_phone }} </th>
                                 </tr>
                                 </tbody>
                         </table>

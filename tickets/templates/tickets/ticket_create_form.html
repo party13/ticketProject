@@ -1,10 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'base.html'  %}
+
+        {% block title %}
+           Создать карточку
+        {% endblock %}
+
+ {% block content %}
+    <div class="col-6 offset-md-2">
+        <h1 class = "mb-5"> Создать новую карточку : </h1>
+        <p> <strong>Внимание! {{user.firstName}} {{user.fathName}} , </strong>Вы можете самостоятельно создать работу (поручение, напоминание) только для своих подчиненных.</p>
+        <p>Потребителем будете являться Вы. </p>
+        <form class="" action="{% url 'create_ticket' %}" method = "post">
+            {% csrf_token %}
+
+                {% for field in form %}
+                    <div class="form-group">
+                        {% if field.errors %}
+                            <div class="alert alert-danger">
+                                {{ field.errors }}
+                             </div>
+                        {% endif %}
+
+
+
+                        {{ field.label }}
+                        {{ field }}
+
+                    </div>
+
+                {% endfor %}
+
+                <div class="form-group">Потребитель:         {{ user }}</div>
+
+            <button type="submit" class ="btn btn-primary" >Создать карточку</button>
+        </form>
+    </div>
+ {% endblock %}

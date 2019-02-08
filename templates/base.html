@@ -22,45 +22,57 @@
 
 <nav class="navbar navbar-light bg-light">
   <span class="navbar-brand mt-1"><h3>КАРТОЧКИ</h3></span>
-
-    <div class="navbar-brand mr"><h5>отдел: {{ dept_number }}</h5></div>
-    <div class="navbar-brand mr"><h5>
         {% if user_name %}
-           имя: {{ user_name }}
+            <div><p>{{ dept_number }}
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ user_name }}</a>
+                    <div class="dropdown-menu">
+                          <a class="dropdown-item" href="{% url 'create_ticket' %}">Создать карточку</a>
+                          <hr>
+                          <a class="dropdown-item" href="{% url 'password_change' %}">Сменить пароль</a>
+                          <a class="dropdown-item" href="{% url 'logout' %}">Выйти</a>
+                    </div>
+                </div>
+            </p></div>
+
         {% else %}
-            <a href="\login">войти</a>
+            <div> <a href="{% url 'login_url' %}">Войти</a> </div>
         {% endif %}
-        </h5></div>
 </nav>
 
-{% block create-panel %}
-        <div class="create-panel align-items-center">
-            <button type="button" class="btn btn-success"  aria-haspopup="true" aria-expanded="false">+</button>
-            <button type="button" class="btn btn-outline-info"  aria-haspopup="true" aria-expanded="false">=</button>
-         </div>
+{% if user_name %}
+    {% block create-panel %}
+            <div class="create-panel align-items-center">
+                <button type="button" class="btn btn-success"  aria-haspopup="true" aria-expanded="false">+</button>
+                <button type="button" class="btn btn-outline-info"  aria-haspopup="true" aria-expanded="false">=</button>
+             </div>
+    {% endblock %}
+{% endif %}
 
-{% endblock %}
 
 <div class="container mt-1">
     <nav class="navbar navbar-light">
         <ul class="nav nav-tabs">
             <li class="nav-item">
-                <a class="nav-link active" href="/tickets/news">Новые {% if updates %}<span class="badge badge-info">new:{{updates}}</span> {% endif %}</a>
+                <a class="nav-link active" href="/tickets/news">Все {% if updates %}<span class="badge badge-info">new:{{updates}}</span> {% endif %}</a>
             </li>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Темы</a>
                 <div class="dropdown-menu">
-                      <a class="dropdown-item" href="#">Тема1</a>
-                      <a class="dropdown-item" href="#">Тема2</a>
-                      <a class="dropdown-item" href="#">Тема3</a>
+                    <a class="dropdown-item" href="/tickets/news/">Все</a>
+                    <hr>
+                    {% for theme in themes %}
+                      <a class="dropdown-item" href="?theme={{theme}}">{{theme}}</a>
+                    {% endfor %}
+
                 </div>
             </li>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">План</a>
                 <div class="dropdown-menu">
-                      <a class="dropdown-item" href="#">На эту неделю</a>
-                      <a class="dropdown-item" href="#">На две недели</a>
-                      <a class="dropdown-item" href="#">На месяц</a>
+                      <a class="dropdown-item" href="/tickets/plan?plan=7">На эту неделю</a>
+                      <a class="dropdown-item" href="/tickets/plan?plan=14">На две недели</a>
+                      <a class="dropdown-item" href="/tickets/plan?plan=30">На месяц</a>
                 </div>
             </li>
             <li class="nav-item">
@@ -71,7 +83,7 @@
             </li>
         </ul>
 
-                <form class="form-inline my-2 my-lg-0" action ="#">
+                <form class="form-inline my-2 my-lg-0" action ="{% url 'search_results_url' %}">
                     <input class="form-control mr-sm-2" type="search" placeholder="найти..." name="search">
                     <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Найти</button>
                 </form>
