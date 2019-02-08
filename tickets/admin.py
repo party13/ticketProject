@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from .models import Ticket, Department
+from .models import Ticket, Department, News
 
 
 class DepartmentForm(forms.ModelForm):
@@ -63,5 +63,6 @@ class DepartmentAdmin(admin.ModelAdmin):
 # Now register the new UserAdmin...
 
 admin.site.register(Ticket)
+# admin.site.register(News)
 admin.site.register(Department, DepartmentAdmin)
 

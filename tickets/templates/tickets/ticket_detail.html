@@ -20,15 +20,37 @@
                                 <tbody>
                                 <tr>
                                         <th> Исполнитель</th>
-                                        <th> <button type="button" class="btn btn-success">подписать</button> </th>
+                                        <th> {% if ticket.isSignedByResponsible  %}
+                                                Подписана
+                                             {% else %}
+                                                {% if ticket.responsible  == user_name %}
+                                                   <a href="{% url 'sign_ticket' %}">
+                                                           <button type="button" class="btn btn-success">подписать</button>
+                                                   </a>
+                                                {% else %}
+                                                    еще не подписана
+                                                {% endif %}
+                                        </th>
+                                             {% endif %}
                                         <th> Потребитель </th>
-                                        <th> <button type="button" class="btn btn-success">подписать</button> </th>
+                                        <th> {% if ticket.isSignedByCustomer %}
+                                                Подписана
+                                             {% else %}
+                                                 {% if ticket.consumer == user_name %}
+                                                    <a href="{% url 'sign_ticket' %}">
+                                                            <button type="button" class="btn btn-success">подписать</button>
+                                                    </a>
+                                                 {% else %}
+                                                    еще не подписана
+                                                 {% endif %}
+                                             {% endif %}
+                                        </th>
                                 </tr>
                                 <tr>
                                         <th> {{ ticket.get_ticket_responsible }}</th>
                                         <th align="left"> тел. {{ ticket.get_resp_phone }} </th>
-                                        <th> {{ ticket.get_ticket_customer }}</th>
-                                        <th align="left"> тел. {{ ticket.get_custom_phone }} </th>
+                                        <th> {{ ticket.get_ticket_consumer }}</th>
+                                        <th align="left"> тел. {{ ticket.get_consum_phone }} </th>
                                 </tr>
                                 </tbody>
                         </table>
@@ -41,18 +63,21 @@
                         <p {% if ticket.ticket_is_out_of_term %} class = "alert alert-danger" {% endif %}> срок : {{ ticket.get_ticket_term }}  - {{ ticket.get_ticket_expiration }}</p>
                         <hr>
                         <p> Отчетные материалы: </p>
-                        <p> {% if ticket.reports %} {{ ticket.reports }} {% else %} NO REPORTS YET {% endif %}</p>
-                        <form class="form-inline">
-                          <div class="form-row">
-                            <label for="exampleFormControlFile1">Вложить файл:</label>
-                              <div class="col-auto">
-                                <input type="file" class="form-control-file" id="exampleFormControlFile1">
-                              </div>
-                              <div class="col-auto" align="right">
-                                 <button type="submit" class="btn btn-primary mb-2">Прикрепить</button>
-                              </div>
-                          </div>
-                        </form>
+                        <p> {% if ticket.reports %} {{ ticket.reports }} {% else %} Нет отчетных материалов {% endif %}</p>
+
+                        {% if ticket.responsible == user_name %}
+                                <form class="form-inline">
+                                  <div class="form-row">
+                                    <label for="exampleFormControlFile1">Прикрепить отчетные материалы:</label>
+                                      <div class="col-auto">
+                                        <input type="file" class="form-control-file" id="exampleFormControlFile1">
+                                      </div>
+                                      <div class="col-auto" align="right">
+                                         <button type="submit" class="btn btn-primary mb-2">Прикрепить</button>
+                                      </div>
+                                  </div>
+                                </form>
+                        {% endif %}
                         <hr>
                 </div>
         {% endblock %}

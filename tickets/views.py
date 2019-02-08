@@ -59,6 +59,17 @@ def search_results(request):
         return render(request, 'tickets/index.html')
 
 
+def sign_ticket(request):
+    print ('продписание...')
+    username = request.user
+    print(request)
+    context = {'user': username,
+
+
+               }
+    return render(request, 'tickets/ticket_detail.html')
+
+
 tickets_global = Ticket.objects.all()
 themes=[]
 for ticket in tickets_global:
@@ -76,7 +87,7 @@ class TicketsList(View):
             updates = News.objects.filter(responsibleID__exact=username.id).count()
             dept_number = username.department
 
-        themes = []
+        # themes = []
         theme_filter = request.GET.get('theme', '')
 
         if theme_filter:
@@ -103,7 +114,6 @@ class TicketDetail(View):
 
         if request.user.is_authenticated:
             username = request.user
-            print(request.user)
         else:
             username = None
 
@@ -114,6 +124,10 @@ class TicketDetail(View):
                   'themes': themes
                   }
         return render(request, 'tickets/ticket_detail.html', context = context)
+
+    def post(self, request):
+        print('post method ticket-detail')
+        return render(request, 'tickets/index.html', context={})
 
 
 class TicketPlan(View):
@@ -128,7 +142,7 @@ class TicketPlan(View):
         planned_ticket = tickets_global.filter(term__range=(td, td + timedelta(int(days))))
         context = {'tickets': planned_ticket,
                    'user_name': username,
-                   'days' : days
+                   'days' : days,
                    }
 
         return render(request, 'tickets/plan.html', context=context)
@@ -151,12 +165,8 @@ class CreateTicket(View):
             new_ticket = form.save(commit=False)
             new_ticket.consumer = user
             new_ticket.osn = 'Поручение от {}'.format(user)
-            new_ticket.number = 10  # hardcoded unique number to chnage later
 
-            print(new_ticket.__dict__.values())
-
-
-            # print(new_ticket)
             new_ticket.save()
-            return redirect('index_page')
+            message = 'Карточка создана, номер: '.format(new_ticket.number)
+            return redirect('index_page', context={'message':message})
         return redirect(request, self.template, context={'form': form})

@@ -35,7 +35,7 @@
                               <td data-toggle="tooltip" data-placement="top" title="тел.: {{ticket.get_resp_phone }}">
                                   {{ ticket.get_ticket_responsible}} </td>
                               <td data-toggle="tooltip" data-placement="top" title="тел.: {{ticket.get_custom_phone }}">
-                                  {{ ticket.get_ticket_customer }}</td>
+                                  {{ ticket.get_ticket_consumer }}</td>
                               <td {% if ticket.ticket_is_out_of_term %} class = "alert alert-danger" {% endif %} >{{ ticket.get_ticket_term }} </td>
                               <td><a href="{{ ticket.get_ticket_url }}" class="badge badge-pill badge-primary" data-toggle="tooltip" data-placement="top" title="Подробнее...">. . .</a></td>
                             </tr>

@@ -4,4 +4,4 @@ from .models import Ticket
 class CreateTicketForm(ModelForm):
     class Meta:
         model = Ticket
-        fields = ['theme', 'job', 'term', 'responsible']
+        fields = ['number', 'theme', 'job', 'term', 'responsible']

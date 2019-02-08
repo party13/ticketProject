@@ -43,10 +43,21 @@
 {% if user_name %}
     {% block create-panel %}
             <div class="create-panel align-items-center">
-                <button type="button" class="btn btn-success"  aria-haspopup="true" aria-expanded="false">+</button>
+                <a href="{% url 'create_ticket' %}">
+                    <button type="button" class="btn btn-success"  aria-haspopup="true" aria-expanded="false">+</button>
+                </a>
                 <button type="button" class="btn btn-outline-info"  aria-haspopup="true" aria-expanded="false">=</button>
              </div>
     {% endblock %}
+{% endif %}
+
+{% if message %}
+    {% block message%}
+    <div class="message">
+        <div> {{ message }}</div>
+        <button type="button" class="btn btn-success">close</button>
+    </div>
+    {% endblock%}
 {% endif %}
 
 
