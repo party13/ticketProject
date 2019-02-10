@@ -23,18 +23,18 @@
 <nav class="navbar navbar-light bg-light">
   <span class="navbar-brand mt-1"><h3>КАРТОЧКИ</h3></span>
         {% if user_name %}
-            <div><p>{{ dept_number }}
+            {{ dept_number }}
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ user_name }}</a>
                     <div class="dropdown-menu">
                           <a class="dropdown-item" href="{% url 'create_ticket' %}">Создать карточку</a>
-                          <hr>
+                          <a class="dropdown-item" href="#">Кабинет</a>
                           <a class="dropdown-item" href="{% url 'password_change' %}">Сменить пароль</a>
+                          <a class="dropdown-item" href="#">Помощь</a>
+                          <hr>
                           <a class="dropdown-item" href="{% url 'logout' %}">Выйти</a>
                     </div>
                 </div>
-            </p></div>
-
         {% else %}
             <div> <a href="{% url 'login_url' %}">Войти</a> </div>
         {% endif %}
@@ -65,15 +65,22 @@
     <nav class="navbar navbar-light">
         <ul class="nav nav-tabs">
             <li class="nav-item">
-                <a class="nav-link active" href="/tickets/news">Все {% if updates %}<span class="badge badge-info">new:{{updates}}</span> {% endif %}</a>
+                <a class="nav-link active" href="{% url 'all' %}">Все</a>
             </li>
+            {% if updates %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'news' %}">
+                        <span class="badge badge-info">new:{{updates}}</span>
+                    </a>
+                </li>
+            {% endif %}
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Темы</a>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="/tickets/news/">Все</a>
+                    <a class="dropdown-item" href="{% url 'all' %}">Все</a>
                     <hr>
                     {% for theme in themes %}
-                      <a class="dropdown-item" href="?theme={{theme}}">{{theme}}</a>
+                      <a class="dropdown-item" href="{% url 'all' %}?theme={{theme}}">{{theme}}</a>
                     {% endfor %}
 
                 </div>
@@ -81,16 +88,26 @@
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">План</a>
                 <div class="dropdown-menu">
-                      <a class="dropdown-item" href="/tickets/plan?plan=7">На эту неделю</a>
-                      <a class="dropdown-item" href="/tickets/plan?plan=14">На две недели</a>
-                      <a class="dropdown-item" href="/tickets/plan?plan=30">На месяц</a>
+                  <a class="dropdown-item" href="/tickets/plan?plan=7">На эту неделю</a>
+                  <a class="dropdown-item" href="/tickets/plan?plan=14">На две недели</a>
+                  <a class="dropdown-item" href="/tickets/plan?plan=30">На месяц</a>
+                </div>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Отчет</a>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="/tickets/report?report=7">За неделю</a>
+                  <a class="dropdown-item" href="/tickets/report?report=14">За две недели</a>
+                  <a class="dropdown-item" href="/tickets/report?report=30">За месяц</a>
+                  <a class="dropdown-item" href="/tickets/report">Настраиваемый..</a>
+
                 </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Отчет</a>
+                <a class="nav-link" href="{% url 'archive' %}">Архив</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin">Архив</a>          <!- откорректировать ссылку -/!>
+                <a class="nav-link" href="/admin">Admin</a>          <!- откорректировать ссылку -/!>
             </li>
         </ul>
 

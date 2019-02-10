@@ -1,84 +1,106 @@
 {% extends 'base.html'  %}
 
-        {% block title %}
-            Подробности - карточка № {{ ticket.number }}
-        {% endblock %}
+{% block title %}
+    Подробности - карточка № {{ ticket.number }}
+{% endblock %}
 
-        {% block content %}
-                <div class="col-8 offset-md-2">
-
-                        <table class="table">
-                                <tbody>
-                                <tr class = "alert alert-success" align="center">
-                                        <th> <p align="center"> Kарточка №  {{ ticket.number }}-813274618293</p></th>
-                                        <th>{% if ticket.isRead %} прочитана {% else %}новая!{% endif %}</th>
-                                        <th>{{ ticket.status }}</th>
-                                </tr>
-                                </tbody>
-                        </table>
-                        <table class="table table-borderless">
-                                <tbody>
-                                <tr>
-                                        <th> Исполнитель</th>
-                                        <th> {% if ticket.isSignedByResponsible  %}
-                                                Подписана
-                                             {% else %}
-                                                {% if ticket.responsible  == user_name %}
-                                                   <a href="{% url 'sign_ticket' %}">
-                                                           <button type="button" class="btn btn-success">подписать</button>
-                                                   </a>
-                                                {% else %}
-                                                    еще не подписана
-                                                {% endif %}
-                                        </th>
-                                             {% endif %}
-                                        <th> Потребитель </th>
-                                        <th> {% if ticket.isSignedByCustomer %}
-                                                Подписана
-                                             {% else %}
-                                                 {% if ticket.consumer == user_name %}
-                                                    <a href="{% url 'sign_ticket' %}">
-                                                            <button type="button" class="btn btn-success">подписать</button>
-                                                    </a>
-                                                 {% else %}
-                                                    еще не подписана
-                                                 {% endif %}
-                                             {% endif %}
-                                        </th>
-                                </tr>
-                                <tr>
-                                        <th> {{ ticket.get_ticket_responsible }}</th>
-                                        <th align="left"> тел. {{ ticket.get_resp_phone }} </th>
-                                        <th> {{ ticket.get_ticket_consumer }}</th>
-                                        <th align="left"> тел. {{ ticket.get_consum_phone }} </th>
-                                </tr>
-                                </tbody>
-                        </table>
-
-                        <hr>
-                        <h6>Тема: {{ ticket.theme }}</h6>
-                        <hr>
-                        <p>  {{ ticket.job }} </p>
-                        <hr>
-                        <p {% if ticket.ticket_is_out_of_term %} class = "alert alert-danger" {% endif %}> срок : {{ ticket.get_ticket_term }}  - {{ ticket.get_ticket_expiration }}</p>
-                        <hr>
-                        <p> Отчетные материалы: </p>
-                        <p> {% if ticket.reports %} {{ ticket.reports }} {% else %} Нет отчетных материалов {% endif %}</p>
-
-                        {% if ticket.responsible == user_name %}
-                                <form class="form-inline">
-                                  <div class="form-row">
-                                    <label for="exampleFormControlFile1">Прикрепить отчетные материалы:</label>
-                                      <div class="col-auto">
-                                        <input type="file" class="form-control-file" id="exampleFormControlFile1">
-                                      </div>
-                                      <div class="col-auto" align="right">
-                                         <button type="submit" class="btn btn-primary mb-2">Прикрепить</button>
-                                      </div>
-                                  </div>
-                                </form>
+{% block content %}
+    <div class="col-8 offset-md-2">
+        <table class="table">
+            <tbody>
+            <tr class = "alert alert-success" align="center">
+                <th> <p align="center"> Kарточка №  {{ ticket.number }}-813274618293</p></th>
+                <th>{% if ticketIsNew %} новая! {% endif %}</th>
+                <th>{{ ticket.status }}</th>
+            </tr>
+            </tbody>
+        </table>
+        <table class="table table-borderless">
+            <tbody>
+            <tr>
+                <th> Исполнитель</th>
+                <th> {% if ticket.isSignedByResponsible  %}
+                        Подписана
+                     {% else %}
+                        {% if ticket.responsible  == user_name %}
+                          {% if ticket.reports %}
+                            <form action="{% url 'sign_ticket' %}" method="post">
+                                {% csrf_token %}
+                               <input type="hidden"  name="tn" value="{{ticket.number}}">
+                               <button type="submit" class="btn btn-sm btn-success">подписать</button>
+                            </form>
+                          {% else %}
+                            <button class="btn btn-secondary disabled" data-toggle="tooltip"
+                                    data-placement="top" title="Нужно добавить отчетные материалы">
+                                подписать</button>
+                          {% endif %}
+                        {% else %}
+                            еще не подписана
                         {% endif %}
-                        <hr>
-                </div>
-        {% endblock %}
+                </th>
+                     {% endif %}
+                <th> Потребитель </th>
+                <th> {% if ticket.isSignedByCustomer %}
+                        Подписана
+                     {% else %}
+                         {% if ticket.consumer == user_name %}
+                            {% if ticket.isSignedByResponsible %}
+                                <form action="{% url 'sign_ticket' %}" method="post">
+                                   {% csrf_token %}
+                                   <input type="hidden" name="tn" value="{{ticket.number}}">
+                                   <button type="submit" class="btn btn-success">подписать</button>
+                                </form>
+                            {% else %}
+                                <button class="btn btn-secondary disabled" data-toggle="tooltip"
+                                    data-placement="top" title="Вначале должен подписать Исполнитель">
+                                подписать</button>
+                            {% endif %}
+                         {% else %}
+                            еще не подписана
+                         {% endif %}
+                     {% endif %}
+                </th>
+            </tr>
+            <tr>
+                <th> {{ ticket.get_ticket_responsible }}</th>
+                <th align="left"> тел. {{ ticket.get_resp_phone }} </th>
+                <th> {{ ticket.get_ticket_consumer }}</th>
+                <th align="left"> тел. {{ ticket.get_consum_phone }} </th>
+            </tr>
+            </tbody>
+        </table>
+
+        <hr>
+           <h6>Тема: <a href="{% url 'all' %}?theme={{ticket.theme}}">{{ ticket.theme }}</a></h6>
+        <hr>
+        <p>  {{ ticket.job }} </p>
+        <hr>
+        <p {% if ticket.ticket_is_out_of_term %} class = "alert alert-danger" {% endif %}> срок : {{ ticket.get_ticket_term }}  - {{ ticket.get_ticket_expiration }}</p>
+        <hr>
+        <p> <strong>Отчетные материалы: </strong></p>
+        <p> {% if ticket.reports %} {{ ticket.reports }} {% else %} Нет отчетных материалов {% endif %}</p>
+        {% if ticket.responsible == user_name %}
+            {% if not ticket.isSignedByResponsible %}
+                <form class="form-inline" action="{% url 'make_reports' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="tn" value="{{ticket.number}}">
+                    <input type="text" placeholder="Можете добавить комментарий..." name="report_comments">
+                  <div class="form-row">
+                    <label for="exampleFormControlFile1">Прикрепить отчетные материалы:</label>
+                      <div class="col-auto">
+                        <input type="file" class="form-control-file" id="exampleFormControlFile1">
+                      </div>
+                      <div class="col-auto" align="right">
+                         <button type="submit" class="btn btn-primary mb-2">Прикрепить</button>
+                      </div>
+                  </div>
+                </form>
+            <!--{% else %}
+            <p>Нельзя менять отчетные материалы после подписания. Обратитесь за помощью к админу</p>
+            /-->
+            {% endif %}
+        {% endif %}
+        <hr>
+    </div>
+{% endblock %}
 

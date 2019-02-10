@@ -1,12 +1,16 @@
 # Create your views here.
 from django.shortcuts import render, redirect
-# from django.views.generic.simple import
+from django.contrib import sessions
+
+from KB_Users.models import UserKB
 from .models import Ticket, News
 from .forms import CreateTicketForm
 
 from django.views.generic import View
 from django.db.models import Q
 from datetime import date, timedelta
+
+from django.http import HttpResponse
 
 
 def index_page(request):
@@ -52,7 +56,9 @@ def search_results(request):
         context = {'tickets': tickets,
                    'themes': searched_themes,
                    'search_text': search_query,
-                   'text_result' : text_result
+                   'text_result' : text_result,
+                   'user_name': request.user,
+                   'dept_number' : request.user.department
                    }
         return render(request, 'tickets/search_results.html', context = context)
     else:
@@ -60,17 +66,42 @@ def search_results(request):
 
 
 def sign_ticket(request):
-    print ('продписание...')
-    username = request.user
-    print(request)
-    context = {'user': username,
+    print ('подписание...')
+    username = request.user or None
+    ticket_number = request.POST.get('tn', '') or None
+    #us_id = request.session.get('_auth_user_id')
+    #username = UserKB.objects.get(id=us_id)
+    if username and ticket_number:
+        ticket_query = Ticket.objects.filter(number = ticket_number)
+        ticket = ticket_query.first()
+        if ticket.responsible == username:
+            ticket_query.update(isSignedByResponsible = True)
+        if ticket.consumer == username:
+            ticket_query.update(isSignedByCustomer = True)
+            print('checking ticket for closing-?')
+            if ticket.mayBeClosed():
+                print('ok. closing ticket')
+                # можно закрыть карточку
+                ticket_query.update(status = 'closed')
 
+        return redirect(ticket)
+    print ('yt elfkjcm gjlgbcfnm')
 
-               }
-    return render(request, 'tickets/ticket_detail.html')
+def make_reports(request):
+    comments = request.POST.get('report_comments', '') or None
+    ticket_number = request.POST.get('tn', '') or None
+    ticket_query = Ticket.objects.filter(number=ticket_number)
+    ticket = ticket_query.first()
+    print(comments)
+    print(ticket)
+    ticket_query.update(reports=comments)
+
+    return redirect(ticket)
+
 
 
 tickets_global = Ticket.objects.all()
+tickets_global = tickets_global.exclude(status__exact='closed')
 themes=[]
 for ticket in tickets_global:
     if ticket.theme not in themes:
@@ -103,9 +134,32 @@ class TicketsList(View):
                    }
 
         return render(request, 'tickets/index.html', context=context)
-
     def post(self, request, theme):
         return render(request, 'tickets/index.html', context={})
+
+
+class NewTickets(View):
+    def get(self, request):
+        updates = 0
+        username = None
+        dept_number = ''
+        if request.user.is_authenticated:
+            username = request.user
+            news = News.objects.filter(responsibleID__exact=username.id).values_list('ticketNumber', flat=True)
+
+            tickets= Ticket.objects.filter(id__in=news)
+            print(tickets)
+            updates = len(news)
+            dept_number = username.department
+
+        context = {'tickets': tickets,
+                   'updates': updates,
+                   'user_name': username,
+                   'themes': themes,
+                   'dept_number' : dept_number
+                   }
+
+        return render(request, 'tickets/index.html', context=context)
 
 
 class TicketDetail(View):
@@ -118,15 +172,26 @@ class TicketDetail(View):
             username = None
 
         ticket = Ticket.objects.get(number__iexact=number)
-        #ticket.isRead = True
+        #  Ok, news- 20 ticket.id-  17  responsible ID-  4
+        #         ticket.isRead = True
+        ticketIsNew = False
+        news = News.objects.filter(Q(responsibleID = request.session.get('_auth_user_id')) &
+                                   Q(ticketNumber = ticket.id))
+        # удаляем "новости"
+        ticketIsNew = len(news) > 0
+        news.delete()
+
+
+        print('found {} news'.format(len(news)))
         context= {'ticket':ticket,
                   'user_name': username,
-                  'themes': themes
+                  'themes': themes,
+                  'dept_number': username.department,
+                  'ticketIsNew': ticketIsNew
                   }
         return render(request, 'tickets/ticket_detail.html', context = context)
 
     def post(self, request):
-        print('post method ticket-detail')
         return render(request, 'tickets/index.html', context={})
 
 
@@ -140,9 +205,13 @@ class TicketPlan(View):
 
         td = date.today()
         planned_ticket = tickets_global.filter(term__range=(td, td + timedelta(int(days))))
+        planned_ticket = planned_ticket.filter(Q(responsible=username) | Q(consumer=username))
+
         context = {'tickets': planned_ticket,
                    'user_name': username,
                    'days' : days,
+                   'themes': themes,
+                   'dept_number': username.department
                    }
 
         return render(request, 'tickets/plan.html', context=context)
@@ -153,7 +222,10 @@ class CreateTicket(View):
     def get(self, request):
         form = CreateTicketForm ()
 
-        return render( request, self.template, context={'form': form, 'user': request.user, })
+        return render( request, self.template, context={'form': form,
+                                                        'user_name': request.user,
+                                                        'dept_number': request.user.department,
+                                                        'themes':themes})
 
     def post(self, request):
         form = CreateTicketForm(request.POST)
@@ -161,12 +233,30 @@ class CreateTicket(View):
         if form.is_valid():
             data = form.cleaned_data
             print('valid')
-            print(data)
             new_ticket = form.save(commit=False)
             new_ticket.consumer = user
             new_ticket.osn = 'Поручение от {}'.format(user)
 
             new_ticket.save()
-            message = 'Карточка создана, номер: '.format(new_ticket.number)
-            return redirect('index_page', context={'message':message})
-        return redirect(request, self.template, context={'form': form})
+            message = ''
+            #message = 'Карточка создана, номер: '.format(new_ticket.number)
+            return redirect(new_ticket)
+
+        return render(request, self.template, context={'form': form})
+
+
+
+class Archive(View):
+    def get(self, request):
+        username = request.user or None
+        archive_tickets = Ticket.objects.filter(status__exact='closed')
+        context = {'tickets': archive_tickets,
+                   'user_name': username,
+                   'themes': themes,
+                   'dept_number': username.department
+                   }
+
+        return render(request, 'tickets/index.html', context=context)
+
+    def post(self, request):
+        pass

@@ -145,9 +145,9 @@ class Ticket(models.Model):
         new.responsibleID = self.responsible.id
         new.ticketNumber = self.id
         new.save()
-        print('Ok, news', new.id, 'ticket.id- ', self.id)
+        print('Ok, news-', new.id, 'ticket.id- ', new.ticketNumber, ' responsible ID- ', new.responsibleID)
 
-    def get_ticket_url(self):
+    def get_absolute_url(self):
         return reverse('ticket_detail_url', kwargs={'number': self.number})
 
     def get_ticket_term(self):
@@ -158,13 +158,19 @@ class Ticket(models.Model):
 
     def get_ticket_expiration(self):
         delta = (self.term - date.today()).days
-        return 'осталось {} дней'.format(str(delta)) if delta > 0 else 'просрочена на {} дней'.format(str(-delta))
+        if delta > 0 :
+            exp = 'осталось {} дней'.format(str(delta))
+        elif delta==0:
+            exp = 'срок сегодня'
+        else:
+            exp = 'просрочена на {} дней'.format(str(-delta))
+        return exp
 
-    def get_ticket_title(self, words=15):
+    def get_ticket_title(self, words=10):
         title = str(self.job).split()[:words]
         return ' '.join(title)
 
-    def get_other_job(self, words=15):
+    def get_other_job(self, words=10):
         other_job = str(self.job).split()[words:]
         return ' '.join(other_job)
 
@@ -184,3 +190,13 @@ class Ticket(models.Model):
     def get_consum_phone(self):
         consum_user = self.consumer
         return consum_user.phone
+
+    def mayBeClosed(self):
+        if not self.isSignedByResponsible:
+            return False
+        if not self.isSignedByCustomer:
+            return False
+        if not self.reports:
+            return False
+        return True
+

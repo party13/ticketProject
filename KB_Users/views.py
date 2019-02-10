@@ -21,7 +21,6 @@ class Cabinet(View):
 
 class MyLogin(auth_views.LoginView):
     def get(self, request ):
-        print('myLogin - GET')
         userlogin = request.user
         context = {
             'user_login': userlogin,
@@ -30,8 +29,6 @@ class MyLogin(auth_views.LoginView):
         return render(request, template_name='registration/login.html', context=context )
 
     def post(self, request, next=''):
-        print('myLogin - POST')
-
         user = request.POST.get('username')
         psw = request.POST.get('password')
 
@@ -39,7 +36,7 @@ class MyLogin(auth_views.LoginView):
         if user:
             login(request, user)
             print('login success: ', user)
-            return redirect('news_list' )
+            return redirect('all' )
         else:
             print(' invalid username or password ')
             context = {
