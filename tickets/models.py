@@ -198,5 +198,12 @@ class Ticket(models.Model):
             return False
         if not self.reports:
             return False
+        if self.term < date.today():
+            return False
         return True
+
+
+    def closeTicket(self):
+        self.status = 'closed'
+        self.save()
 

@@ -24,3 +24,13 @@
     opacity: 0.6;
     padding :10px;
 }
+
+#copyright {
+    position: fixed; /* Фиксированное положение */
+    left: 0px;
+    bottom: 0px; /* Левый нижний угол */
+    padding: 10px; /* Поля вокруг текста */
+    color: #aaa; /* Цвет текста */
+    width: 100%; /* Ширина слоя */
+    text-align: center;
+   }

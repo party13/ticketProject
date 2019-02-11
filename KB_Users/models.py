@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, AbstractUser
-#from tickets.models import Department
+from tickets.models import Department
 
 
 # Create your models here.
@@ -85,6 +85,9 @@ class UserKB(AbstractBaseUser):
         if self.firstName and self.secondName and self.fathName:
             return self.secondName + ' ' + str(self.firstName)[0] + '.' + str(self.fathName)[0] + '.'
         return self.userName
+
+    def is_boss(self):
+        return self.id in Department.objects.all().values_list('boss', flat=True)
 
     class Meta:
         verbose_name = 'Пользователь'

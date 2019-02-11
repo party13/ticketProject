@@ -82,7 +82,7 @@ def sign_ticket(request):
             if ticket.mayBeClosed():
                 print('ok. closing ticket')
                 # можно закрыть карточку
-                ticket_query.update(status = 'closed')
+                ticket.closeTicket()
 
         return redirect(ticket)
     print ('yt elfkjcm gjlgbcfnm')
@@ -148,7 +148,6 @@ class NewTickets(View):
             news = News.objects.filter(responsibleID__exact=username.id).values_list('ticketNumber', flat=True)
 
             tickets= Ticket.objects.filter(id__in=news)
-            print(tickets)
             updates = len(news)
             dept_number = username.department
 
@@ -166,12 +165,18 @@ class TicketDetail(View):
     def get(self, request, number):
         #ticket = get_object_or_404(Ticket, number__iexact=number)
 
+
         if request.user.is_authenticated:
             username = request.user
         else:
             username = None
 
         ticket = Ticket.objects.get(number__iexact=number)
+        try:
+            updates = News.objects.filter(responsibleID__exact=username.id).count()
+        except:
+            updates = 0
+
         #  Ok, news- 20 ticket.id-  17  responsible ID-  4
         #         ticket.isRead = True
         ticketIsNew = False
@@ -181,13 +186,12 @@ class TicketDetail(View):
         ticketIsNew = len(news) > 0
         news.delete()
 
-
-        print('found {} news'.format(len(news)))
         context= {'ticket':ticket,
                   'user_name': username,
                   'themes': themes,
                   'dept_number': username.department,
-                  'ticketIsNew': ticketIsNew
+                  'ticketIsNew': ticketIsNew,
+                  'updates': updates
                   }
         return render(request, 'tickets/ticket_detail.html', context = context)
 
@@ -207,13 +211,18 @@ class TicketPlan(View):
         planned_ticket = tickets_global.filter(term__range=(td, td + timedelta(int(days))))
         planned_ticket = planned_ticket.filter(Q(responsible=username) | Q(consumer=username))
 
+        try:
+            updates = News.objects.filter(responsibleID__exact=username.id).count()
+        except:
+            updates = 0
+
         context = {'tickets': planned_ticket,
                    'user_name': username,
                    'days' : days,
                    'themes': themes,
+                   'updates': updates,
                    'dept_number': username.department
                    }
-
         return render(request, 'tickets/plan.html', context=context)
 
 
@@ -250,13 +259,21 @@ class Archive(View):
     def get(self, request):
         username = request.user or None
         archive_tickets = Ticket.objects.filter(status__exact='closed')
+
+        try:
+            updates = News.objects.filter(responsibleID__exact=username.id).count()
+        except:
+            updates = 0
+
         context = {'tickets': archive_tickets,
                    'user_name': username,
                    'themes': themes,
+                   'updates': updates,
                    'dept_number': username.department
+
                    }
 
-        return render(request, 'tickets/index.html', context=context)
+        return render(request, 'tickets/archive.html', context=context)
 
     def post(self, request):
         pass

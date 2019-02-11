@@ -1,58 +1,17 @@
-{% extends 'base.html'  %}
+{% extends 'tickets\index.html'  %}
 
-        {% block title %}
-            ПЛАН на {{days}} дней
-        {% endblock %}
+{% block title %}
+    ПЛАН на {{days}} дней
+{% endblock %}
 
-        {% block content %}
-            {% if tickets %}
-                <table class="table table-bordered">
-                  <thead>
-                    <tr>
-                      <th scope="col">Номер </th>
-                      <th scope="col">Тема</th>
-                      <th scope="col">Содержание     </th>
-                      <th scope="col">Ответственный</th>
-                      <th scope="col">Потребитель</th>
-                      <th scope="col">Срок</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                     <h4>Ваш план на ближайшие {{days}} дней </h4>
-                        {% for ticket in tickets %}
-                            <tr>
-                              <td> {{ ticket.number }} </td>
-                              <td> {{ ticket.theme }}  </td>
-                              <td><a class="" data-toggle="collapse" href="#collapseText-{{ticket.number}}" aria-expanded="false" aria-controls="collapseText-{{ticket.number}}">
-                                  {{ ticket.get_ticket_title }} </a>
-                                  {% if ticket.get_other_job %}...
-                                      <div class="collapse" id="collapseText-{{ticket.number}}">
-                                            <p>
-                                                 {{ ticket.get_other_job }}
-                                            </p>
-                                      </div>
-                                  {% endif %}
-                              </td>
-                              <td data-toggle="tooltip" data-placement="top" title="тел.: {{ticket.get_resp_phone }}">
-                                  {{ ticket.get_ticket_responsible}} </td>
-                              <td data-toggle="tooltip" data-placement="top" title="тел.: {{ticket.get_consum_phone }}">
-                                  {{ ticket.get_ticket_consumer }}</td>
-                              <td {% if ticket.ticket_is_out_of_term %} class = "alert alert-danger" {% endif %} >{{ ticket.get_ticket_term }} </td>
-                              <td><a href="{{ ticket.get_absolute_url }}" class="badge badge-pill badge-primary" data-toggle="tooltip" data-placement="top" title="Подробнее...">. . .</a></td>
-                            </tr>
+{% block ticket_header %}
+     <h4>Ваш план на ближайшие {{days}} дней </h4>
 
-                        {% endfor %}
-                  </tbody>
-                </table>
+{% endblock %}
 
-            {% else %}
-
-                <hr>
-                <h4>Здесь будет отображаться ваш план </h4>
-                <hr>
-
-            {% endif %}
-
-
-        {% endblock %}
+{% block no_tickets %}
+    <hr>
+        <h4>Здесь будет отображаться ваш план </h4>
+    <hr>
+{% endblock %}
 

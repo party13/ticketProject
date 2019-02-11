@@ -1,0 +1,70 @@
+{% extends 'base.html'  %}
+
+{% block title %}
+    Список карточек | {{ theme }}
+{% endblock %}
+
+{% block content %}
+
+    <div class="container mt-1">
+        <nav class="navbar navbar-light">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'all' %}">Все</a>
+                </li>
+                {% if updates %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'news' %}">
+                            <span class="badge badge-info">new:{{updates}}</span>
+                        </a>
+                    </li>
+                {% endif %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Темы</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{% url 'all' %}">Все</a>
+                        <hr>
+                        {% for theme in themes %}
+                          <a class="dropdown-item" href="{% url 'all' %}?theme={{theme}}">{{theme}}</a>
+                        {% endfor %}
+
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">План</a>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" href="/tickets/plan?plan=7">На эту неделю</a>
+                      <a class="dropdown-item" href="/tickets/plan?plan=14">На две недели</a>
+                      <a class="dropdown-item" href="/tickets/plan?plan=30">На месяц</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Отчет</a>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" href="/tickets/report?report=7">За неделю</a>
+                      <a class="dropdown-item" href="/tickets/report?report=14">За две недели</a>
+                      <a class="dropdown-item" href="/tickets/report?report=30">За месяц</a>
+                      <a class="dropdown-item" href="/tickets/report">Настраиваемый..</a>
+
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'archive' %}">Архив</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/admin">Admin</a>          <!- откорректировать ссылку -/!>
+                </li>
+            </ul>
+
+                    <form class="form-inline my-2 my-lg-0" action ="{% url 'search_results_url' %}">
+                        <input class="form-control mr-sm-2" type="search" placeholder="найти..." name="search">
+                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Найти</button>
+                    </form>
+        </nav>
+    </div>
+    {% block ticket_content %}
+        карточки
+    {% endblock %}
+
+{% endblock %}
+
