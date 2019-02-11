@@ -130,7 +130,7 @@ class TicketsList(View):
                    'updates': updates,
                    'user_name': username,
                    'themes': themes,
-                   'dept_number' : dept_number
+                   'dept_number' : dept_number,
                    }
 
         return render(request, 'tickets/index.html', context=context)
@@ -155,7 +155,7 @@ class NewTickets(View):
                    'updates': updates,
                    'user_name': username,
                    'themes': themes,
-                   'dept_number' : dept_number
+                   'dept_number' : dept_number,
                    }
 
         return render(request, 'tickets/index.html', context=context)

@@ -20,17 +20,28 @@
     border-radius : 2px;
     position: fixed;
     left: 650 px;
-    top: 300px;
+    top: 50px;
     opacity: 0.6;
     padding :10px;
 }
 
-#copyright {
-    position: fixed; /* Фиксированное положение */
-    left: 0px;
-    bottom: 0px; /* Левый нижний угол */
-    padding: 10px; /* Поля вокруг текста */
-    color: #aaa; /* Цвет текста */
-    width: 100%; /* Ширина слоя */
-    text-align: center;
-   }
+#footer{
+    position:absolute;
+    border: solid;
+    color:#2B8C67;
+    height:100%px;
+    margin top:98%;
+}
+
+#copyright{
+    position:relative;
+    margin top:20px ;
+    height:100%;
+    left: 0 px;
+    bottom: 0px;
+    padding :10px;
+    color: #aaa;
+    width:100%;
+    text-align:center;
+}
+
