@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Кабинет | {{user_name}}
+{% endblock %}
+
+{% block content %}
+<div class="col-6 offset-md-2">
+    <h4 > Кабинет </h4>
+    <p><strong>{{user_name.firstName}} {{user_name.fathName}}</strong>, добро пожаловать в Ваш личный кабинет</p>
+    <p>Здесь Вы можете изменить свои личные данные</p>
+    <hr>
+    <form class="" action="{% url 'cabinet' %}" method = "post">
+        {% csrf_token %}
+            {% for field in form %}
+                <div class="form-group">
+                    {% if field.errors %}
+                        <div class="alert alert-danger">
+                            {{ field.errors }}
+                         </div>
+                    {% endif %}
+                    <div class="row">
+                        <div class="col-sm"> {{ field.label }}</div>
+                        <div class="col-sm"> {{ field }}      </div>
+                    </div>
+                </div>
+            {% endfor %}
+        <div class="row">
+            <div class="col-sm">  <button type="submit" class ="btn btn-success" >Сохранить изменения</button> </div>
+        </div>
+    </form>
+</div>
+<hr>
+<div class="col-8 offset-md-2">
+    <div class="row">
+        <div class="col-sm"><a href="{% url 'index_page' %}" class="btn btn-info">Вернуться на сайт</a> </div>
+        <div class="col-sm"><a href="{% url 'password_change' %}" class="btn btn-info">Сменить пароль</a> </div>
+        <div class="col-sm"><a href="mailto:tickets_admin@kbu.net" class="btn btn-info">Обратная связь</a> </div>
+     </div>
+</div>
+
+{% endblock %}

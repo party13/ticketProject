@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block content %}
+<div class="col-6 offset-md-2">
     {% if form.errors %}
     <p>Ваш пароль (password) и имя пользователя (UserName) не совпадают.
       Пожалуйста попробуйте снова.</p>
@@ -23,6 +24,7 @@
 
     <form method="post" action="{% url 'login_url' %}">
         {% csrf_token %}
+    <h4 > Войти на сайт </h4>
         <table>
         <tr>
             <td>{{ form.username.label_tag }}</td>
@@ -33,9 +35,10 @@
             <td>{{ form.password }}</td>
         </tr>
         </table>
-        <input type="submit" value="login">
+        <button type="submit" class ="btn btn-success" >Войти</button>
         <input type="hidden" name="next" value="{{ next }}">
     </form>
 
-    <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+    <p><a href="{% url 'password_reset' %}">Забыли пароль?</a></p>
+</div>
 {% endblock %}

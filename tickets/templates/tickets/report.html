@@ -1,0 +1,17 @@
+{% extends 'tickets\index.html'  %}
+
+{% block title %}
+    Отчет за {{days}} дней
+{% endblock %}
+
+{% block ticket_header %}
+     <h4>Отчет по работам за {{days}} дней</h4>
+
+{% endblock %}
+
+{% block no_tickets %}
+    <hr>
+        <h4>Здесь будет отображаться ваши отчетные материалы </h4>
+        <img src="" alt="">
+    <hr>
+{% endblock %}

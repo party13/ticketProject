@@ -13,7 +13,8 @@ urlpatterns = [
     path('ticket/archive/', Archive.as_view(), name='archive'),
     path('ticket/sign_ticket/', sign_ticket, name='sign_ticket'),
     path('ticket/make_reports/', make_reports, name='make_reports'),
+
     path('ticket/<str:number>/', TicketDetail.as_view(), name='ticket_detail_url'),
     path('plan/', TicketPlan.as_view() ),
-
+    path('report/', Report.as_view() ),
 ]

@@ -1,7 +1,8 @@
 import random
 from django import forms
 from django.contrib.auth.forms import PasswordResetForm
-#from .models import UserKB
+from django.forms import ModelForm
+from .models import UserKB
 
 from django.core.mail import EmailMultiAlternatives
 
@@ -33,3 +34,9 @@ class ResetPasswordForm(PasswordResetForm):
         user.set_password(new_password)
         user.save()
         email_message.send()
+
+
+class UserForm(ModelForm):
+    class Meta:
+        model = UserKB
+        fields = ['secondName', 'firstName',  'fathName', 'department', 'phone', 'email', 'tabelNumber']

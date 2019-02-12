@@ -6,7 +6,7 @@
 
  {% block ticket_content %}
     <div class="col-6 offset-md-2">
-        <h4 class = "mb-5"> Создать новую карточку : </h4>
+        <h4 > Создать новую карточку </h4>
         <p> <strong>Внимание! {{user_name.firstName}} {{user_name.fathName}}, </strong>Вы можете самостоятельно создать работу (поручение, напоминание) только для своих подчиненных.</p>
         <p>Потребителем будете являться Вы. </p>
         <form class="" action="{% url 'create_ticket' %}" method = "post">
@@ -18,12 +18,18 @@
                                 {{ field.errors }}
                              </div>
                         {% endif %}
-                        {{ field.label }}
-                        {{ field }}
+                        <div class="row">
+                            <div class="col-sm"> {{ field.label }}</div>
+                            <div class="col-sm"> {{ field }}      </div>
+                        </div>
                     </div>
                 {% endfor %}
-                <div class="form-group">Потребитель:        <strong> {{ user_name }}</strong></div>
-
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm">Потребитель : </div>
+                    <div class="col-sm"><strong> {{ user_name }}</strong></div>
+                </div>
+            </div>
             <button type="submit" class ="btn btn-primary" >Создать карточку</button>
         </form>
     </div>

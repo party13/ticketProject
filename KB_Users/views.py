@@ -11,11 +11,36 @@ from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth import views as auth_views
 from django.contrib.auth import authenticate
 
+from .forms import UserForm
+
 
 
 class Cabinet(View):
     def get(self, request):
-        return render(request, template_name='registration/cabinet.html', context={} )
+        user = request.user
+        userForm = UserForm(instance=user)
+        context = {
+            'user_name': user,
+            'form': userForm,
+        }
+        return render(request, template_name='registration/cabinet.html', context=context )
+
+    def post(self, request):
+        print ('cabinet post')
+        user = request.user
+        userForm = UserForm(request.POST, instance=user)
+
+        if userForm.is_valid():
+            print('successfully updated')
+            user.save()
+            return redirect('cabinet')
+
+        print('update failed!')
+        context = {
+            'user_name': user,
+            'form': userForm,
+        }
+        return render(request, template_name='registration/cabinet.html', context=context)
 
 
 
@@ -84,7 +109,7 @@ class MyChangePassword(auth_views.PasswordChangeView):
         user=request.user
         form = PasswordChangeForm(user=user)
 
-        context = {'form':form}
+        context = {'form':form, 'user_name':user}
         return render(request, template_name='registration/password_change.html', context=context)
 
     def post(self, request):
@@ -95,7 +120,8 @@ class MyChangePassword(auth_views.PasswordChangeView):
         if form.is_valid():
             print('all good psswrd chngd')
             context = {'form': form,
-                       'errors': error}
+                       'errors': error,
+                       'user_name': user}
             form.save()
             return render(request, template_name='registration/password_change_ok.html', context=context)
         print('smth wrong')

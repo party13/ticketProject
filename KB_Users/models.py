@@ -43,7 +43,7 @@ class UserKB(AbstractBaseUser):
                                       help_text='Табельный номер используется для дополнительной идентификации пользователя или при восстановлении доступа',
                                       unique = True)
     phone = models.CharField('Телефон', max_length=10)
-    department = models.ForeignKey('tickets.Department', on_delete='SET_NULL', max_length=10, null=True)
+    department = models.ForeignKey('tickets.Department',verbose_name='Подразделение', on_delete='SET_NULL', max_length=10, null=True)
 
     email = models.EmailField()
 
