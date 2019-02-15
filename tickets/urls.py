@@ -5,7 +5,7 @@ from .views import *
 
 
 urlpatterns = [
-    path('', index_page, name='index_page'),
+    path('', TicketsList.as_view(), name='index_page'),
     path('search/', search_results, name='search_results_url'),
     path('all/', TicketsList.as_view(), name='all' ),
     path('news/', NewTickets.as_view(), name='news' ),

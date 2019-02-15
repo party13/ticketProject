@@ -13,18 +13,31 @@ from datetime import date, timedelta
 from django.http import HttpResponse
 
 
-def index_page(request):
-    if request.user.is_authenticated:
-        userlogin = request.user
-        news_quantity = News.objects.filter(responsibleID__exact=userlogin.id).count()
-    else:
-        userlogin =  '@#(*%^()@()@T&#ttgaz23g -- no user --- @#(*%^()@()@T&#ttgaz23g '
-        news_quantity = ''
-    context = {
-        'user_login' : userlogin,
-        'count' : news_quantity
-    }
-    return render(request, 'tickets/index.html', context = context)
+
+tickets_global = Ticket.objects.all()
+tickets_global = tickets_global.exclude(status__exact='closed')
+themes=[]
+for ticket in tickets_global:
+    if ticket.theme not in themes:
+        themes.append(ticket.theme)
+
+
+# def index_page(request):
+#     if request.user.is_authenticated:
+#         username = request.user
+#         updates = News.objects.filter(responsibleID__exact=username.id).count()
+#         dept_number = username.department
+#     else:
+#         updates = 0
+#         username = None
+#         dept_number = ''
+#     context = {
+#         'user_name' : username,
+#         'updates' : updates,
+#         'themes': themes,
+#         'tickets': tickets_global
+#     }
+#     return render(request, 'tickets/index.html', context = context)
 
 
 def search_results(request):
@@ -98,15 +111,6 @@ def make_reports(request):
     return redirect(ticket)
 
 
-
-tickets_global = Ticket.objects.all()
-tickets_global = tickets_global.exclude(status__exact='closed')
-themes=[]
-for ticket in tickets_global:
-    if ticket.theme not in themes:
-        themes.append(ticket.theme)
-
-
 class TicketsList(View):
     def get(self, request):
 
@@ -125,7 +129,6 @@ class TicketsList(View):
             tickets = Ticket.objects.filter(theme__iexact=theme_filter)
         else:
             tickets = tickets_global
-
         context = {'tickets': tickets,
                    'updates': updates,
                    'user_name': username,
@@ -292,7 +295,6 @@ class Archive(View):
 
 class  Report (View):
     def get(self, request):
-
         days = request.GET.get('report', '') or None
         if request.user.is_authenticated:
             username = request.user

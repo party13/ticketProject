@@ -43,6 +43,8 @@ class UserChangeForm(forms.ModelForm):
         fields = ('userName',  'firstName', 'secondName',
                   'tabelNumber','phone','is_active', 'department')
 
+
+
     # password = ReadOnlyPasswordHashField()
     # def clean_password(self):
     #     # Regardless of what the user provides, return the initial value.
@@ -77,7 +79,8 @@ class MyUserAdmin(UserAdmin):
             'fields': ('userName', 'tabelNumber', 'password1', 'password2')}
         ),
     )
-    search_fields = ('userName',)
+    # search_fields = ('userName',)
+    search_fields = ['secondName']
     ordering = ('userName',)
     filter_horizontal = ()
 

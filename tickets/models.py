@@ -24,7 +24,7 @@ class Department(models.Model):
         verbose_name_plural  = 'Подразделения'
 
     def __str__(self):
-        return self.departmentName+':'+self.path
+        return self.departmentName
 
     def save(self, *args, **kwargs):
         super(Department, self).save(*args, **kwargs)
@@ -105,7 +105,7 @@ class News(models.Model):
 
 
 class Ticket(models.Model):
-    number = models.IntegerField(unique=True)
+    number = models.IntegerField('Номер', unique=True)
     theme = models.CharField('Тема', max_length=150, db_index=True)
     job = models.TextField('Вид работ', db_index=True)
     term = models.DateField('Срок')
@@ -121,8 +121,8 @@ class Ticket(models.Model):
     zakaz = models.CharField('Заказ', max_length=50, )
     reports = models.TextField('Отчетные материалы', max_length=200, blank=True)
     controlGK = models.BooleanField('Контроль генерального', default=False)
-    isSignedByResponsible = models.BooleanField(default=False)
-    isSignedByCustomer = models.BooleanField(default=False)
+    isSignedByResponsible = models.BooleanField('Подписана ответственным', default=False)
+    isSignedByCustomer = models.BooleanField('Подписана потребителем',default=False)
     responsible = models.ForeignKey('KB_Users.UserKB',
                                     default=1,
                                     on_delete='SET_DEFAULT',
@@ -169,6 +169,7 @@ class Ticket(models.Model):
     def get_ticket_title(self, words=10):
         title = str(self.job).split()[:words]
         return ' '.join(title)
+    get_ticket_title.short_description = 'Заголовок'
 
     def get_other_job(self, words=10):
         other_job = str(self.job).split()[words:]

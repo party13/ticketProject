@@ -30,7 +30,7 @@ class DepartmentForm(forms.ModelForm):
 
 
 class DepartmentAdmin(admin.ModelAdmin):
-    # The forms to add and change user instances
+    # The forms to add and change  instances
     form = DepartmentForm
     #save_on_top = True
     actions = ['move_to_department']
@@ -52,6 +52,7 @@ class DepartmentAdmin(admin.ModelAdmin):
     readonly_fields = ['path',]
     ordering = ('path','departmentName')
     filter_horizontal = ()
+    autocomplete_fields = ['boss']
 
     def move_to_department(self, request, queryset):
         print(dir(request))
@@ -62,7 +63,24 @@ class DepartmentAdmin(admin.ModelAdmin):
 
 # Now register the new UserAdmin...
 
-admin.site.register(Ticket)
+class TicketForm(forms.ModelForm):
+    class Meta:
+        model = Ticket
+        fields = ('__all__')
+
+
+class TicketAdmin(admin.ModelAdmin):
+    form = TicketForm
+    list_display = ('number', 'get_ticket_title', 'responsible', 'consumer')
+    autocomplete_fields = ['responsible', 'consumer']
+    search_fields = ['number']
+
+
+
+
+
+
+admin.site.register(Ticket, TicketAdmin)
 # admin.site.register(News)
 admin.site.register(Department, DepartmentAdmin)
 
