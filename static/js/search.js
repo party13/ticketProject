@@ -14,7 +14,7 @@ function onSearchTextChange(){
 		b2.hidden = true;
 		i3.hidden = true;
 		b1.textContent = 'Удалить';	 }
-	else if(s1.value==='move_to_department'){
+	else if (s1.value === 'move_to_department'){
 		//b1.hidden = true;
 		i3.hidden = false;
 		

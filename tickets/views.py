@@ -14,30 +14,20 @@ from django.http import HttpResponse
 
 
 
-tickets_global = Ticket.objects.all()
-tickets_global = tickets_global.exclude(status__exact='closed')
-themes=[]
-for ticket in tickets_global:
-    if ticket.theme not in themes:
-        themes.append(ticket.theme)
+tickets_global = Ticket.objects.all().exclude(status__exact='closed')       # to be changed later
+themes = set(Ticket.objects.values_list('theme', flat=True))
 
-
-# def index_page(request):
-#     if request.user.is_authenticated:
-#         username = request.user
-#         updates = News.objects.filter(responsibleID__exact=username.id).count()
-#         dept_number = username.department
-#     else:
-#         updates = 0
-#         username = None
-#         dept_number = ''
-#     context = {
-#         'user_name' : username,
-#         'updates' : updates,
-#         'themes': themes,
-#         'tickets': tickets_global
-#     }
-#     return render(request, 'tickets/index.html', context = context)
+def user_dept(request):
+    """ gets user_name, department, and news from request """
+    if request.user.is_authenticated:
+        username = request.user
+        updates = News.objects.filter(responsibleID__exact=username.id).count()
+        dept_number = username.department
+    else:
+        updates = 0
+        username = None
+        dept_number = ''
+    return username, dept_number, updates
 
 
 def search_results(request):
@@ -53,9 +43,7 @@ def search_results(request):
         searched_themes=[]
         text_result=''
         if total>0:
-            for ticket in tickets:
-                if ticket.theme not in searched_themes:
-                    searched_themes.append(ticket.theme)
+            searched_themes=set(tickets.values_list('theme', flat=True))
             total = str(total)
             if total[-1] in '567890':
                 text_result = 'Найдено {} карточек'.format(total)
@@ -78,18 +66,22 @@ def search_results(request):
 
 
 def sign_ticket(request):
-    print ('подписание...')
     username = request.user or None
     ticket_number = request.POST.get('tn', '') or None
     #us_id = request.session.get('_auth_user_id')
     #username = UserKB.objects.get(id=us_id)
     if username and ticket_number:
-        ticket_query = Ticket.objects.filter(number = ticket_number)
+        ticket_query = Ticket.objects.filter(number=ticket_number)
         ticket = ticket_query.first()
         if ticket.responsible == username:
-            ticket_query.update(isSignedByResponsible = True)
+            ticket_query.update(isSignedByResponsible=True)
+            new = News(responsibleID=ticket.consumer.id, ticketNumber=ticket.id)
+            new.save()
+            print('signed by resp')
         if ticket.consumer == username:
             ticket_query.update(isSignedByCustomer = True)
+            ticket.refresh_from_db()
+            print('signed by consum')
             print('checking ticket for closing-?')
             if ticket.mayBeClosed():
                 print('ok. closing ticket')
@@ -97,33 +89,19 @@ def sign_ticket(request):
                 ticket.closeTicket()
 
         return redirect(ticket)
-    print ('yt elfkjcm gjlgbcfnm')
 
 def make_reports(request):
     comments = request.POST.get('report_comments', '') or None
     ticket_number = request.POST.get('tn', '') or None
-    ticket_query = Ticket.objects.filter(number=ticket_number)
-    ticket = ticket_query.first()
-    print(comments)
-    print(ticket)
-    ticket_query.update(reports=comments)
-
-    return redirect(ticket)
+    ticket_q = Ticket.objects.filter(number=ticket_number)
+    ticket_q.update(reports=comments)
+    # ticket.save()
+    return redirect(ticket_q.first())
 
 
 class TicketsList(View):
     def get(self, request):
-
-        if request.user.is_authenticated:
-            username = request.user
-            updates = News.objects.filter(responsibleID__exact=username.id).count()
-            dept_number = username.department
-        else:
-            updates = 0
-            username = None
-            dept_number = ''
-
-        # themes = []
+        username, dept_number, updates = user_dept(request)
         theme_filter = request.GET.get('theme', '')
         if theme_filter:
             tickets = Ticket.objects.filter(theme__iexact=theme_filter)
@@ -143,18 +121,11 @@ class TicketsList(View):
 
 class NewTickets(View):
     def get(self, request):
-
+        username, dept_number, _ = user_dept(request)
         if request.user.is_authenticated:
-            username = request.user
             news = News.objects.filter(responsibleID__exact=username.id).values_list('ticketNumber', flat=True)
-
             tickets= Ticket.objects.filter(id__in=news)
             updates = len(news)
-            dept_number = username.department
-        else:
-            updates = 0
-            username = None
-            dept_number = ''
 
         context = {'tickets': tickets,
                    'updates': updates,
@@ -168,25 +139,8 @@ class NewTickets(View):
 
 class TicketDetail(View):
     def get(self, request, number):
-        #ticket = get_object_or_404(Ticket, number__iexact=number)
-
-
-        if request.user.is_authenticated:
-            username = request.user
-            department = username.department
-        else:
-            username = None
-            department = ''
-
+        username, dept_number, updates = user_dept(request)
         ticket = Ticket.objects.get(number__iexact=number)
-        try:
-            updates = News.objects.filter(responsibleID__exact=username.id).count()
-        except:
-            updates = 0
-
-        #  Ok, news- 20 ticket.id-  17  responsible ID-  4
-        #         ticket.isRead = True
-        ticketIsNew = False
         news = News.objects.filter(Q(responsibleID = request.session.get('_auth_user_id')) &
                                    Q(ticketNumber = ticket.id))
         # удаляем "новости"
@@ -196,7 +150,7 @@ class TicketDetail(View):
         context= {'ticket':ticket,
                   'user_name': username,
                   'themes': themes,
-                  'dept_number': department,
+                  'dept_number': dept_number,
                   'ticketIsNew': ticketIsNew,
                   'updates': updates
                   }
@@ -208,29 +162,19 @@ class TicketDetail(View):
 
 class TicketPlan(View):
     def get(self, request):
+        username, dept_number, updates = user_dept(request)
         days = request.GET.get('plan', '')
-        if request.user.is_authenticated:
-            username = request.user
-            department = username.department
-        else:
-            username = None
-            department = ''
-
         td = date.today()
         planned_ticket = tickets_global.filter(term__range=(td, td + timedelta(int(days))))
         planned_ticket = planned_ticket.filter(Q(responsible=username) | Q(consumer=username))
 
-        try:
-            updates = News.objects.filter(responsibleID__exact=username.id).count()
-        except:
-            updates = 0
 
         context = {'tickets': planned_ticket,
                    'user_name': username,
                    'days' : days,
                    'themes': themes,
                    'updates': updates,
-                   'dept_number': department
+                   'dept_number': dept_number
                    }
         return render(request, 'tickets/plan.html', context=context)
 
@@ -256,8 +200,8 @@ class CreateTicket(View):
             new_ticket.osn = 'Поручение от {}'.format(user)
 
             new_ticket.save()
-            message = ''
-            #message = 'Карточка создана, номер: '.format(new_ticket.number)
+            # message = ''
+            # message = 'Карточка создана, номер: '.format(new_ticket.number)
             return redirect(new_ticket)
 
         return render(request, self.template, context={'form': form})
@@ -266,25 +210,14 @@ class CreateTicket(View):
 
 class Archive(View):
     def get(self, request):
-        if request.user.is_authenticated:
-            username = request.user
-            department = username.department
-        else:
-            username = None
-            department = ''
-
-        archive_tickets = Ticket.objects.filter(status__exact='closed')
-
-        try:
-            updates = News.objects.filter(responsibleID__exact=username.id).count()
-        except:
-            updates = 0
-
+        username, dept_number, updates = user_dept(request)
+        archive_tickets =  Ticket.objects.filter( Q(consumer=username) | Q(responsible=username))
+        archive_tickets = archive_tickets.filter(Q(status='closed') )
         context = {'tickets': archive_tickets,
                    'user_name': username,
                    'themes': themes,
                    'updates': updates,
-                   'dept_number': department
+                   'dept_number': dept_number
                    }
 
         return render(request, 'tickets/archive.html', context=context)
@@ -295,26 +228,16 @@ class Archive(View):
 
 class  Report (View):
     def get(self, request):
+        username, dept_number, updates = user_dept(request)
         days = request.GET.get('report', '') or None
-        if request.user.is_authenticated:
-            username = request.user
-            department = username.department
-        else:
-            username = None
-            department = ''
-        try:
-            updates = News.objects.filter(responsibleID__exact=username.id).count()
-        except:
-            updates = 0
-
         td = date.today()
-        reported_tickets = tickets_global.filter(Q(term__range=(td - timedelta(int(days)), td )) & Q(status='closed') & Q(consumer=username))
+        reported_tickets = tickets_global.filter(Q(term__range=(td - timedelta(int(days)), td )) & Q(status='closed') & Q(consumer=username)) # to be changed later
         context = {'tickets': reported_tickets,
                    'user_name': username,
                    'days': days,
                    'themes': themes,
                    'updates': updates,
-                   'dept_number': department
+                   'dept_number': dept_number
                    }
         return render(request, 'tickets/report.html', context=context)
 

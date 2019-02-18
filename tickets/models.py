@@ -193,14 +193,20 @@ class Ticket(models.Model):
         return consum_user.phone
 
     def mayBeClosed(self):
+        print('may be closed?')
         if not self.isSignedByResponsible:
+            print('not signed by resp')
             return False
         if not self.isSignedByCustomer:
+            print('not signed by custom')
             return False
         if not self.reports:
+            print('no reports')
             return False
         if self.term < date.today():
+            print('too late to close automatically')
             return False
+        print('yes!')
         return True
 
 
