@@ -5,7 +5,7 @@ from django.contrib import sessions
 from KB_Users.models import UserKB
 from .models import Ticket, News
 from .forms import CreateTicketForm
-
+from .utils import generate_number, user_dept
 from django.views.generic import View
 from django.db.models import Q
 from datetime import date, timedelta
@@ -16,19 +16,7 @@ from django.http import HttpResponse
 
 tickets_global = Ticket.objects.all().exclude(status__exact='closed')       # to be changed later
 themes = set(Ticket.objects.values_list('theme', flat=True))
-
-def user_dept(request):
-    """ gets user_name, department, and news from request """
-    if request.user.is_authenticated:
-        username = request.user
-        updates = News.objects.filter(responsibleID__exact=username.id).count()
-        dept_number = username.department
-    else:
-        updates = 0
-        username = None
-        dept_number = ''
-    return username, dept_number, updates
-
+newNumber = generate_number()
 
 def search_results(request):
     search_query = request.GET.get('search', '')
@@ -192,13 +180,15 @@ class CreateTicket(View):
     def post(self, request):
         form = CreateTicketForm(request.POST)
         user = request.user
+
+
         if form.is_valid():
             data = form.cleaned_data
             print('valid')
             new_ticket = form.save(commit=False)
             new_ticket.consumer = user
             new_ticket.osn = 'Поручение от {}'.format(user)
-
+            new_ticket.number = next(newNumber)
             new_ticket.save()
             # message = ''
             # message = 'Карточка создана, номер: '.format(new_ticket.number)
@@ -226,7 +216,7 @@ class Archive(View):
         pass
 
 
-class  Report (View):
+class Report (View):
     def get(self, request):
         username, dept_number, updates = user_dept(request)
         days = request.GET.get('report', '') or None

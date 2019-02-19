@@ -8,6 +8,7 @@
     <div class="col-8 offset-md-2">
         <table class="table">
             <tbody>
+            <tr>//actions</tr>
             <tr {% if ticket.status == 'closed' %} class="alert alert-secondary" {% else %} class = "alert alert-success" {% endif %} align="center">
                 <th> <p align="center"> Kарточка №  {{ ticket.number }}</p></th>
                 <th>{% if ticketIsNew %} новая! {% endif %}</th>
