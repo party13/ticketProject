@@ -51,6 +51,7 @@ class UserKB(AbstractBaseUser):
     is_admin = models.BooleanField(default=False, editable=False)
 
     objects = UserKBManager()
+    # children = ChildrenManager()
 
     USERNAME_FIELD = 'userName'
     REQUIRED_FIELDS = ['tabelNumber']
@@ -88,6 +89,15 @@ class UserKB(AbstractBaseUser):
 
     def is_boss(self):
         return self.id in Department.objects.all().values_list('boss', flat=True)
+
+    def get_children(self):
+        if self.is_boss():
+            # beautifull generator so can't delete it
+            # return [UserKB.objects.get(id=x) for x in self.department.get_children().values_list('boss', flat=True)]
+            return UserKB.objects.filter(id__in=self.department.get_children().values_list('boss', flat=True))
+
+    def get_my_workers(self):
+        return UserKB.objects.filter(department = self.department)
 
     class Meta:
         verbose_name = 'Пользователь'

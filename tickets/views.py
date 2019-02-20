@@ -1,6 +1,8 @@
 # Create your views here.
 from django.shortcuts import render, redirect
 from django.contrib import sessions
+from django.forms import ModelMultipleChoiceField
+
 
 from KB_Users.models import UserKB
 from .models import Ticket, News
@@ -170,21 +172,24 @@ class TicketPlan(View):
 class CreateTicket(View):
     template = 'tickets/ticket_create_form.html'
     def get(self, request):
-        form = CreateTicketForm ()
+        user = request.user
+        form = CreateTicketForm (user)
+
 
         return render( request, self.template, context={'form': form,
-                                                        'user_name': request.user,
+                                                        'user_name': user,
                                                         'dept_number': request.user.department,
-                                                        'themes':themes})
+                                                        'themes' : themes})
 
     def post(self, request):
-        form = CreateTicketForm(request.POST)
         user = request.user
-
+        form = CreateTicketForm(user, request.POST or None)
+        data = form.data
+        print(data)
 
         if form.is_valid():
             data = form.cleaned_data
-            print('valid')
+            print('valid data', data)
             new_ticket = form.save(commit=False)
             new_ticket.consumer = user
             new_ticket.osn = 'Поручение от {}'.format(user)

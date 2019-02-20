@@ -71,12 +71,18 @@
                 <th> {{ ticket.get_ticket_consumer }}</th>
                 <th align="left"> тел. {{ ticket.get_consum_phone }} </th>
             </tr>
+            <tr>
+                <th> <h6>Тема: </h6></th>
+                <th align="left"> <a href="{% url 'all' %}?theme={{ticket.theme}}">{{ ticket.theme }}</a> </th>
+                <th> <h6>Основание: </h6></th>
+                <th align="left"><h6>{{ ticket.osn }}</h6> </th>
+
+            </tr>
             </tbody>
         </table>
 
         <hr>
-           <h6>Тема: <a href="{% url 'all' %}?theme={{ticket.theme}}">{{ ticket.theme }}</a></h6>
-        <hr>
+
         <p>  {{ ticket.job }} </p>
         <hr>
         <p {% if ticket.ticket_is_out_of_term %} class = "alert alert-danger" {% endif %}> срок : {{ ticket.get_ticket_term }}  - {{ ticket.get_ticket_expiration }}</p>
