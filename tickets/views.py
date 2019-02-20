@@ -1,20 +1,19 @@
 # Create your views here.
+#
+# from django.contrib import sessions
+# from django.forms import ModelMultipleChoiceField
+# from django.http import HttpResponse
+# from KB_Users.models import UserKB
+
+
 from django.shortcuts import render, redirect
-from django.contrib import sessions
-from django.forms import ModelMultipleChoiceField
-
-
-from KB_Users.models import UserKB
 from .models import Ticket, News
 from .forms import CreateTicketForm
 from .utils import generate_number, user_dept
 from django.views.generic import View
 from django.db.models import Q
 from datetime import date, timedelta
-
-from django.http import HttpResponse
-
-
+from django.core.paginator import Paginator
 
 tickets_global = Ticket.objects.all().exclude(status__exact='closed')       # to be changed later
 themes = set(Ticket.objects.values_list('theme', flat=True))
@@ -35,7 +34,7 @@ def search_results(request):
         if total>0:
             searched_themes=set(tickets.values_list('theme', flat=True))
             total = str(total)
-            if total[-1] in '567890':
+            if total[-1] in '567890' or total in ['11','12','13','14']:
                 text_result = 'Найдено {} карточек'.format(total)
             elif total[-1] in '234':
                 text_result = 'Найдено {} карточки'.format(total)
@@ -97,16 +96,29 @@ class TicketsList(View):
             tickets = Ticket.objects.filter(theme__iexact=theme_filter)
         else:
             tickets = tickets_global
+
+        paginator = Paginator(tickets, 15)
+        page_number = request.GET.get('page', 1)
+        page = paginator.get_page(page_number)
+        is_paginated = page.has_other_pages()
+        prev_url = '?page={}'.format(page.previous_page_number()) if page.has_previous() else ''
+        next_url = '?page={}'.format(page.next_page_number()) if page.has_next() else ''
+
+
         context = {'tickets': tickets,
                    'updates': updates,
                    'user_name': username,
                    'themes': themes,
                    'dept_number' : dept_number,
+                   'page_object': page,
+                   'is_paginated': is_paginated,
+                   'next_url': next_url,
+                   'prev_url': prev_url
                    }
 
         return render(request, 'tickets/index.html', context=context)
-    def post(self, request, theme):
-        return render(request, 'tickets/index.html', context={})
+    # def post(self, request, theme):
+    #     return render(request, 'tickets/index.html', context={})
 
 
 class NewTickets(View):
@@ -193,7 +205,8 @@ class CreateTicket(View):
             new_ticket = form.save(commit=False)
             new_ticket.consumer = user
             new_ticket.osn = 'Поручение от {}'.format(user)
-            new_ticket.number = next(newNumber)
+            nmbr = next(newNumber)
+            new_ticket.number = nmbr
             new_ticket.save()
             # message = ''
             # message = 'Карточка создана, номер: '.format(new_ticket.number)

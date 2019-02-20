@@ -25,7 +25,7 @@
                 </tr>
               </thead>
               <tbody>
-                {% for ticket in tickets %}
+                {% for ticket in page_object.object_list %}
                     <tr>
                       <td > {{ ticket.number }} </td>
                       <td> {{ ticket.theme }}  </td>

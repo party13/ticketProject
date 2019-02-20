@@ -6,9 +6,49 @@
 
 {% block ticket_content %}
     <div class="col-8 offset-md-2">
+        <div class="container">
+          <div class="row">
+              <div class="col-sm">
+                  <a href="#" class="badge badge-light">
+                      <img src="/static/img/10-30.png" width="20" height="20" alt="share">
+                  </a>
+              </div>
+              <div class="col-sm">
+                  <a href="copy" class="badge badge-light">
+                      <img src="/static/img/8-30.png" width="20" height="20" alt="copy" >
+                  </a>
+              </div>
+              <div class="col-sm">
+                  <a href="prolongate" class="badge badge-light">
+                      <img src="/static/img/4-30.png" width="20" height="20" alt="prolongate">
+                  </a>
+              </div>
+              <div class="col-sm">
+                  <a href="#print" class="badge badge-light">
+                      <img src="/static/img/3.png" alt="print">
+                  </a>
+              </div>
+              <div class="col-sm">
+                  <a href="#redirect" class="badge badge-light">
+                      <img src="/static/img/30-30.png" width="20" height="20">
+                  </a>
+              </div>
+              <div class="col-sm">
+                  <a href="#back" class="badge badge-light">
+                      <img src="/static/img/20-30.png" width="20" height="20">
+                  </a>
+              </div>
+              <div class="col-sm"><a href=""></a></div>
+              <div class="col-sm"><a href=""></a></div>
+              <div class="col-sm"><a href=""></a></div>
+              <div class="col-sm"><a href=""></a></div>
+              <div class="col-sm"><a href=""></a></div>
+          </div>
+        </div>
+
         <table class="table">
             <tbody>
-            <tr>//actions</tr>
+
             <tr {% if ticket.status == 'closed' %} class="alert alert-secondary" {% else %} class = "alert alert-success" {% endif %} align="center">
                 <th> <p align="center"> Kарточка №  {{ ticket.number }}</p></th>
                 <th>{% if ticketIsNew %} новая! {% endif %}</th>
@@ -21,7 +61,7 @@
             <tr>
                 <th> Исполнитель</th>
                 <th> {% if ticket.isSignedByResponsible  %}
-                        Подписана
+                        <small>Подписана</small><img src="/static/img/5.png" width="20" height="20">
                      {% else %}
                         {% if ticket.responsible  == user_name %}
                           {% if ticket.reports %}
@@ -42,7 +82,7 @@
                      {% endif %}
                 <th> Потребитель </th>
                 <th> {% if ticket.isSignedByCustomer %}
-                        Подписана
+                        <small>Подписана</small><img src="/static/img/5.png" width="20" height="20">
                      {% else %}
                          {% if ticket.consumer == user_name %}
                             {% if ticket.isSignedByResponsible %}
