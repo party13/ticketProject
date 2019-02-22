@@ -1,0 +1,19 @@
+{% extends 'tickets\ticket_create_form.html'  %}
+
+    {% block title %}
+       Редактировать карточку {{ ticket.number }}
+    {% endblock %}
+
+    {% block crud_header %}
+        <h4 > Редактировать карточку {{ ticket.number }} </h4>
+        <p> <strong>Внимание! {{user_name.firstName}} {{user_name.fathName}}, </strong>Вы можете изменить срок, текст работы, ответственного.</p>
+        <p>Потребителем остаетесь Вы. </p>
+    {% endblock %}
+
+    {% block crud_url %}
+        <form class="" action="{% url 'edit_ticket' number=ticket.number %}" method = "post">
+    {% endblock %}
+
+    {% block crud_btn%}
+        <button type="submit" class ="btn btn-primary" >Редактировать карточку</button>
+    {% endblock %}

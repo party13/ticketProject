@@ -1,0 +1,19 @@
+{% extends 'tickets\ticket_create_form.html'  %}
+
+        {% block title %}
+           Копировать карточку
+        {% endblock %}
+
+        {% block crud_header %}
+            <h4 > Создать новую карточку </h4>
+            <p> <strong>Внимание! {{user_name.firstName}} {{user_name.fathName}}, </strong>Вы можете самостоятельно создать работу (поручение, напоминание) только для своих подчиненных.</p>
+            <p>Потребителем будете являться Вы. </p>
+        {% endblock %}
+
+        {% block crud_url %}
+        <form class="" action="{% url 'create_ticket' %}" method = "post">
+        {% endblock %}
+
+            {% block crud_btn%}
+            <button type="submit" class ="btn btn-primary" >Создать карточку</button>
+            {% endblock %}

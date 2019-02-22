@@ -1,11 +1,11 @@
-from django.forms import ModelForm
+from django.forms import ModelForm, Form
 #     ModelMultipleChoiceField
 # from django.forms import SelectDateWidget, CheckboxSelectMultiple
-# from KB_Users.models import UserKB
 from django.contrib.admin.widgets import AdminDateWidget
 from .models import Ticket
 from datetime import date
 from django.core.exceptions import ValidationError
+from django.core.mail import EmailMultiAlternatives
 
 
 class CreateTicketForm(ModelForm):
@@ -38,3 +38,14 @@ class CreateTicketForm(ModelForm):
             # 'term': AdminDateWidget,
             # 'responsible' : CheckboxSelectMultiple
                    }
+
+class ShareTicketForm(Form):
+
+    def save(self, user, link):
+        email = self.cleaned_data["email"]
+        subject = 'Карточка'
+        from_email = user.email
+        body = r'Карточка {}'.format(link)
+
+        email_message = EmailMultiAlternatives(subject, body, from_email, [email])
+        email_message.send()

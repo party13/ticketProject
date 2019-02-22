@@ -6,10 +6,16 @@
 
  {% block ticket_content %}
     <div class="col-6 offset-md-2">
-        <h4 > Создать новую карточку </h4>
-        <p> <strong>Внимание! {{user_name.firstName}} {{user_name.fathName}}, </strong>Вы можете самостоятельно создать работу (поручение, напоминание) только для своих подчиненных.</p>
-        <p>Потребителем будете являться Вы. </p>
+        {% block crud_header %}
+            <h4 > Создать новую карточку </h4>
+            <p> <strong>Внимание! {{user_name.firstName}} {{user_name.fathName}}, </strong>Вы можете самостоятельно создать работу (поручение, напоминание) только для своих подчиненных.</p>
+            <p>Потребителем будете являться Вы. </p>
+        {% endblock %}
+
+        {% block crud_url %}
         <form class="" action="{% url 'create_ticket' %}" method = "post">
+        {% endblock %}
+
             {% csrf_token %}
                 {% for field in form %}
                     <div class="form-group">
@@ -30,7 +36,9 @@
                     <div class="col-sm"><strong> {{ user_name }}</strong></div>
                 </div>
             </div>
+            {% block crud_btn%}
             <button type="submit" class ="btn btn-primary" >Создать карточку</button>
+            {% endblock %}
         </form>
     </div>
 

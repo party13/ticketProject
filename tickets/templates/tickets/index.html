@@ -56,9 +56,10 @@
         {% else %}
             {% block no_tickets %}
                 <hr>
-                <p>Здесь будут отображаться ваши карточки </p>
-                <div >
-                    <img src="/static/img/2.gif" alt="">
+                <p>Здесь будут отображаться Ваши карточки.
+                    {% if not user.is_authenticated %}<a href="{% url 'login_url' %}">Войдите</a> на сайт для продолжения </p> {% endif %}
+                <div align="center">
+                    <img src="/static/img/2.gif">
                 </div>
                 <hr>
             {% endblock %}

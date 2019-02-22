@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Страница не найдена
+{% endblock %}
+
+{% block content %}
+<div class="container"></div>
+    <div class="col-8 offset-md-2">
+        <div class="row">
+            <div class="col-sm"><h2>Страница не найдена</h2></div>
+         </div>
+        <div class="row">
+            <div class="col-sm"><a href="{% url 'index_page' %}" class="btn btn-info">Вернуться на сайт</a> </div>
+         </div>
+    </div>
+
+{% endblock %}

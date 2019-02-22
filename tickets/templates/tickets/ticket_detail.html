@@ -9,12 +9,13 @@
         <div class="container">
           <div class="row">
               <div class="col-sm">
-                  <a href="#" class="badge badge-light">
+                  <a href="{% url 'share' %}?number={{ticket.number}}" class="badge badge-light">
                       <img src="/static/img/10-30.png" width="20" height="20" alt="share">
                   </a>
               </div>
               <div class="col-sm">
-                  <a href="copy" class="badge badge-light">
+                  <a href="/tickets/ticket/copy/{{ticket.number}}" class="badge badge-light"
+                     data-toggle="tooltip" title="Скопировать эту карточку">
                       <img src="/static/img/8-30.png" width="20" height="20" alt="copy" >
                   </a>
               </div>
@@ -24,7 +25,7 @@
                   </a>
               </div>
               <div class="col-sm">
-                  <a href="#print" class="badge badge-light">
+                  <a href="print" class="badge badge-light">
                       <img src="/static/img/3.png" alt="print">
                   </a>
               </div>
@@ -38,17 +39,39 @@
                       <img src="/static/img/20-30.png" width="20" height="20">
                   </a>
               </div>
-              <div class="col-sm"><a href=""></a></div>
+              {% if ticket.consumer == user_name %}
+
+                      <div class="col-sm">
+                          {% if ticket.status != 'closed' and not ticket.isSignedByCustomer %}
+                          <a href="{% url 'edit_ticket' number=ticket.number %}" class="badge badge-light"
+                          data-toggle="tooltip" title="Редактировать эту карточку">
+                              <img src="/static/img/7.png" width="20" height="20">
+                          </a>
+                          {% else %}
+                                <img src="/static/img/7.png" width="20" height="20"
+                                     data-toggle="tooltip" title="Невозможно отредактировать">
+                          {% endif %}
+                      </div>
+
+                  <div class="col-sm">
+                      <a href="{% url 'delete_ticket' number=ticket.number %}" class="badge badge-light"
+                      data-toggle="tooltip" title="Удалить эту карточку">
+                          <img src="/static/img/11.png" width="20" height="20" >
+                      </a>
+                  </div>
+
+              {% endif %}
               <div class="col-sm"><a href=""></a></div>
               <div class="col-sm"><a href=""></a></div>
               <div class="col-sm"><a href=""></a></div>
               <div class="col-sm"><a href=""></a></div>
           </div>
         </div>
-
+        {% block ticket_message %}
+        {% endblock %}
         <table class="table">
-            <tbody>
 
+            <tbody>
             <tr {% if ticket.status == 'closed' %} class="alert alert-secondary" {% else %} class = "alert alert-success" {% endif %} align="center">
                 <th> <p align="center"> Kарточка №  {{ ticket.number }}</p></th>
                 <th>{% if ticketIsNew %} новая! {% endif %}</th>
@@ -65,7 +88,7 @@
                      {% else %}
                         {% if ticket.responsible  == user_name %}
                           {% if ticket.reports %}
-                            <form action="{% url 'sign_ticket' %}" method="post">
+                            <form action="{% url 'sign_ticket'  %}" method="post">
                                 {% csrf_token %}
                                <input type="hidden"  name="tn" value="{{ticket.number}}">
                                <button type="submit" class="btn btn-sm btn-success">подписать</button>
@@ -125,7 +148,11 @@
 
         <p>  {{ ticket.job }} </p>
         <hr>
+        {% if ticket.status  != 'closed' %}
         <p {% if ticket.ticket_is_out_of_term %} class = "alert alert-danger" {% endif %}> срок : {{ ticket.get_ticket_term }}  - {{ ticket.get_ticket_expiration }}</p>
+        {% else %}
+        <strong>Была закрыта: ______ (здесь будет дата закрытия) </strong>
+        {% endif %}
         <hr>
         <p> <strong>Отчетные материалы: </strong></p>
         <p> {% if ticket.reports %} {{ ticket.reports }} {% else %} Нет отчетных материалов {% endif %}</p>
