@@ -8,10 +8,11 @@
 
 
     {% block ticket_header %}
-
+        {% if tickets %} Всего {{text_result}} {% endif %}
     {% endblock %}
 
     {% if tickets %}
+
 
             <table class="table table-bordered">
               <thead>

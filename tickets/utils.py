@@ -23,3 +23,16 @@ def generate_number():
         # ожидается, что не более 1000 карточек в день будет создаваться
         # самими пользователями по всему предприятию
         yield td+str(i)
+
+
+def found_ticket_text(quantity):
+    quantity = str(quantity)
+    if quantity==0:
+        return ''
+    if quantity[-1] in '567890' or quantity in ['11', '12', '13', '14']:
+        return ' {} карточек'.format(quantity)
+    elif quantity[-1] in '234':
+        return ' {} карточки'.format(quantity)
+    else:
+        return ' {} карточка'.format(quantity)
+

@@ -6,7 +6,7 @@
 
 {% block ticket_header %}
      <h4>Закрытые карточки </h4>
-
+        {% if tickets %} В архиве {{text_result}} {% endif %}
 {% endblock %}
 
 {% block no_tickets %}

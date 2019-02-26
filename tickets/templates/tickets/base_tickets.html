@@ -59,7 +59,7 @@
                         <a class="nav-link" href="{% url 'archive' %}">Архив</a>
                     </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/admin">Admin</a>          <!- откорректировать ссылку -/!>
+                    <a class="nav-link" href="/admin">Admin</a>         {#- откорректировать ссылку #}
                 </li>
             </ul>
 
@@ -84,7 +84,6 @@
                     <li class="page-item {% if not prev_url %}disabled{% endif %}">
                       <a class="page-link" href="{{ prev_url }}" >Previous</a>
                     </li>
-
                         {% for n in page_object.paginator.page_range %}
                             {% if page_object.number == n %}
                                 <li class="page-item active">
@@ -104,7 +103,6 @@
               </ul>
         </nav>
         {% endif %}
-
     {% endblock %}
 
 

@@ -1,69 +1,55 @@
 # Create your views here.
 #
-# from django.contrib import sessions
+from django.contrib import sessions
 # from django.forms import ModelMultipleChoiceField
 # from django.http import HttpResponse
 # from KB_Users.models import UserKB
-
-
 from django.shortcuts import render, redirect, reverse
 from .models import Ticket, News
 from .forms import CreateTicketForm
-from .utils import generate_number, user_dept
+from .utils import *
 from django.views.generic import View
 from django.db.models import Q
 from datetime import date, timedelta
 from django.core.paginator import Paginator
 
 tickets_global = Ticket.objects.all().exclude(status__exact='closed')       # to be changed later
-themes = set(Ticket.objects.values_list('theme', flat=True))
+themes = set(tickets_global.values_list('theme', flat=True))                # to be changed later
 newNumber = generate_number()
 
+
 def search_results(request):
-    search_query = request.GET.get('search', '')
-    search_query.strip()
+    username, dept_number, updates = user_dept(request)
+    search_query = request.GET.get('search', '').strip()
     if search_query != "":
         if search_query.isdigit():
-            print('digits')
             tickets = Ticket.objects.filter(number__contains=search_query)
         else:
-            print('words!')
-            tickets = Ticket.objects.filter(
-                Q(job__icontains = search_query) |
-                #Q(number = str(search_query) ) |
-                Q(theme__istartswith = search_query)
-            )
+            tickets = Ticket.objects.filter(job__icontains = search_query)
         total = len(tickets)
         searched_themes=[]
         text_result=''
         if total>0:
             searched_themes=set(tickets.values_list('theme', flat=True))
-            total = str(total)
-            if total[-1] in '567890' or total in ['11','12','13','14']:
-                text_result = 'Найдено {} карточек'.format(total)
-            elif total[-1] in '234':
-                text_result = 'Найдено {} карточки'.format(total)
-            else:
-                text_result= 'Найдена {} карточка'.format(total)
-
-        # !!!! search paginator to be fixed later!!!! it doesn't work properly
+            text_result = 'Найдено' + found_ticket_text(total)
+            # total = str(total)
         paginator = Paginator(tickets, 10)
         page_number = request.GET.get('page', 1)
-        page = paginator.get_page(page_number)
+        page = paginator.page(page_number)
         is_paginated = page.has_other_pages()
-        prev_url = '?page={}'.format( page.previous_page_number()) if page.has_previous() else ''
-        next_url = '?page={}'.format( page.next_page_number()) if page.has_next() else ''
+        prev_url = '?search={}&page={}'.format( search_query, page.previous_page_number()) if page.has_previous() else ''
+        next_url = '?search={}&page={}'.format(search_query, page.next_page_number()) if page.has_next() else ''
 
         context = {'tickets': tickets,
                    'themes': searched_themes,
                    'search_text': search_query,
                    'text_result' : text_result,
-                   'user_name': request.user,
-                   'dept_number' : request.user.department,
+                   'user_name': username,
+                   'dept_number' : dept_number,
                    'page_object': page,
                    'is_paginated': is_paginated,
                    'next_url': next_url,
-                   'prev_url': prev_url
+                   'prev_url': prev_url,
                    }
         return render(request, 'tickets/search_results.html', context = context)
     else:
@@ -125,6 +111,7 @@ class TicketsList(View):
         if theme_filter:
             tickets = tickets.filter(theme__iexact=theme_filter)
 
+        text_result = found_ticket_text(len(tickets))
         paginator = Paginator(tickets, 15)
         page_number = request.GET.get('page', 1)
         page = paginator.get_page(page_number)
@@ -134,6 +121,7 @@ class TicketsList(View):
 
 
         context = {'tickets': tickets,
+                   'text_result': text_result,
                    'updates': updates,
                    'user_name': username,
                    'themes': themes,
@@ -155,6 +143,7 @@ class NewTickets(View):
         if request.user.is_authenticated:
             news = News.objects.filter(responsibleID__exact=username.id).values_list('ticketNumber', flat=True)
             tickets= Ticket.objects.filter(id__in=news)
+            text_result = found_ticket_text(len(tickets))
             updates = len(news)
 
         paginator = Paginator(tickets, 15)
@@ -165,6 +154,7 @@ class NewTickets(View):
         next_url = '?page={}'.format(page.next_page_number()) if page.has_next() else ''
 
         context = {'tickets': tickets,
+                   'text_result':text_result,
                    'updates': updates,
                    'user_name': username,
                    'themes': themes,
@@ -232,9 +222,6 @@ class CreateTicket(View):
                     new_ticket.save()
                 except:
                     nmbr = next(newNumber)
-
-            # message = ''
-            # message = 'Карточка создана, номер: '.format(new_ticket.number)
             return redirect(new_ticket)
 
         return render(request, self.template, context={'form': form,
@@ -259,18 +246,19 @@ class EditTicket(View):
     def post(self, request, number):
         user = request.user
         instance = Ticket.objects.get(number=number)
-
         form = CreateTicketForm(user, request.POST, instance=instance)
 
         if form.is_valid():
-            # !!!!! check why it cant edit date field ???
-
             new_ticket = form.save()
             return redirect(new_ticket)
+
+        # form.errors
+        print('not valid form')
 
         return render(request, self.template, context={'form': form,
                                                         'user_name': user,
                                                         'dept_number': request.user.department,
+                                                        'ticket': instance
                                                         })
 
 
@@ -306,7 +294,10 @@ class Archive(View):
         prev_url = '?page={}'.format(page.previous_page_number()) if page.has_previous() else ''
         next_url = '?page={}'.format(page.next_page_number()) if page.has_next() else ''
 
+        text_result = found_ticket_text(len(archive_tickets))
+
         context = {'tickets': archive_tickets,
+                   'text_result':text_result,
                    'updates': updates,
                    'user_name': username,
                    'themes': themes,
@@ -330,15 +321,17 @@ class TicketPlan(View):
         td = date.today()
         planned_ticket = tickets_global.filter(term__range=(td, td + timedelta(int(days))))
         planned_ticket = planned_ticket.filter(Q(responsible=username) | Q(consumer=username))
+        text_result = found_ticket_text(len(planned_ticket))
 
-        paginator = Paginator(planned_ticket, 15)
+        paginator = Paginator(planned_ticket, 10)
         page_number = request.GET.get('page', 1)
         page = paginator.get_page(page_number)
         is_paginated = page.has_other_pages()
-        prev_url = '?page={}'.format(page.previous_page_number()) if page.has_previous() else ''
-        next_url = '?page={}'.format(page.next_page_number()) if page.has_next() else ''
+        prev_url = '?plan={}&page={}'.format(days, page.previous_page_number()) if page.has_previous() else ''
+        next_url = '?plan={}&page={}'.format(days, page.next_page_number()) if page.has_next() else ''
 
         context = {'tickets': planned_ticket,
+                   'text_result':text_result,
                    'updates': updates,
                    'user_name': username,
                    'themes': themes,
@@ -359,6 +352,8 @@ class Report (View):
         td = date.today()
         reported_tickets = tickets_global.filter(Q(term__range=(td - timedelta(int(days)), td )) & Q(status='closed') & Q(consumer=username)) # to be changed later
 
+        text_result= found_ticket_text(len(reported_tickets))
+
         paginator = Paginator(reported_tickets, 15)
         page_number = request.GET.get('page', 1)
         page = paginator.get_page(page_number)
@@ -367,6 +362,7 @@ class Report (View):
         next_url = '?page={}'.format(page.next_page_number()) if page.has_next() else ''
 
         context = {'tickets': reported_tickets,
+                   'text_result':text_result,
                    'updates': updates,
                    'user_name': username,
                    'themes': themes,
