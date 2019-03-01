@@ -10,12 +10,12 @@
 
 {% block content %}
 
-    <div class="container mt-1">
         <nav class="navbar navbar-light">
             <ul class="nav nav-tabs">
                 <li class="nav-item">
-                    <a class="nav-link active" href="{% url 'all' %}">Мои карточки</a>
+                   <a class="nav-link active" href="{% url 'all' %}">Мои карточки</a>
                 </li>
+
                 {% if updates %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'news' %}">
@@ -24,13 +24,21 @@
                         </a>
                     </li>
                 {% endif %}
+
+                {% if user_name.is_boss %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'my_department_tickets' %}">{{ dept_number }}</a>
+                </li>
+                {% endif %}
+
+
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Темы</a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="{% url 'all' %}">Все</a>
+                        <a class="dropdown-item" href="">Все</a>
                         <hr>
                         {% for theme in themes %}
-                          <a class="dropdown-item" href="{% url 'all' %}?theme={{theme}}">{{theme}}</a>
+                          <a class="dropdown-item" href="?theme={{theme}}">{{theme}}</a>
                         {% endfor %}
 
                     </div>
@@ -40,9 +48,9 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">План</a>
                         <div class="dropdown-menu">
-                          <a class="dropdown-item" href="/tickets/plan?plan=7">На эту неделю</a>
-                          <a class="dropdown-item" href="/tickets/plan?plan=14">На две недели</a>
-                          <a class="dropdown-item" href="/tickets/plan?plan=30">На месяц</a>
+                          <a class="dropdown-item" href="plan7">На эту неделю</a>
+                          <a class="dropdown-item" href="plan14">На две недели</a>
+                          <a class="dropdown-item" href="plan30">На месяц</a>
                         </div>
                     </li>
                     <li class="nav-item dropdown">
@@ -59,19 +67,22 @@
                         <a class="nav-link" href="{% url 'archive' %}">Архив</a>
                     </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/admin">Admin</a>         {#- откорректировать ссылку #}
+                    <a class="nav-link" href="/admin">Adm</a>         {#- откорректировать ссылку #}
                 </li>
-            </ul>
-
+                <li class="nav-item">
                     <form class="form-inline my-2 my-lg-0" action ="{% url 'search_results_url' %}">
-                        <input class="form-control mr-sm-2" type="search" id="search_input" placeholder="найти..." name="search">
-                        <button class="btn btn-outline-success my-2 my-sm-0"  type="submit">
-                            <img src="/static/img/9.png" width="20" height="20">Найти
-                        </button>
-                        <!--<small id="search_comment">поиска</small>/!-->
+                    <input class="form-control mr-sm-2" type="search" id="search_input" placeholder="найти..." name="search">
+                    <button class="btn btn-outline-success my-2 my-sm-0"  type="submit">
+                    <img src="/static/img/9.png" width="20" height="20">Найти
+                    </button>
+                    <!--<small id="search_comment">поиска</small>/!-->
                     </form>
+                </li>
+
+
+            </ul>
         </nav>
-    </div>
+
     {% block ticket_content %}
         карточки
     {% endblock %}

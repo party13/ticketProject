@@ -6,7 +6,9 @@
 
 {% block ticket_header %}
      <h4>Ваш план на ближайшие {{days}} дней </h4>
-        {% if tickets %} Запланировано {{text_result}} {% endif %}
+        {% if tickets %} Запланировано {{text_result}}
+            {% if theme %} по теме <strong>{{theme}} </strong>{% endif %}
+        {% endif %}
 {% endblock %}
 
 {% block no_tickets %}

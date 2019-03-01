@@ -113,9 +113,8 @@
                                    {% csrf_token %}
                                    <input type="hidden" name="tn" value="{{ticket.number}}">
                                    <button type="submit" class="btn btn-success" data-toggle="tooltip">
-                                       подписать
+                                       {% if ticket.mayBeClosedAutomatically %} закрыть {% else %} подписать {% endif %}
                                    </button>
-
                                 </form>
                             {% else %}
                                 <button class="btn btn-secondary disabled" data-toggle="tooltip"
@@ -149,9 +148,11 @@
         <p>  {{ ticket.job }} </p>
         <hr>
         {% if ticket.status  != 'closed' %}
-        <p {% if ticket.ticket_is_out_of_term %} class = "alert alert-danger" {% endif %}> срок : {{ ticket.get_ticket_term }}  - {{ ticket.get_ticket_expiration }}</p>
+        <p {% if ticket.ticket_is_out_of_term %} class = "alert alert-danger" {% endif %}> срок : {{ ticket.get_ticket_term }}  - {{ ticket.get_ticket_expiration }}
+
+        </p>
         {% else %}
-        <strong>Была закрыта: ______ (здесь будет дата закрытия) </strong>
+        <strong>Была закрыта: {{ticket.term}} </strong>
         {% endif %}
         <hr>
         <p> <strong>Отчетные материалы: </strong></p>

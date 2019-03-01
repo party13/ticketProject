@@ -6,9 +6,12 @@ from .views import *
 
 
 urlpatterns = [
-    path('', TicketsList.as_view(), name='index_page'),
+    path('', MyTicketsList.as_view(), name='index_page'),
     path('search/', search_results, name='search_results_url'),
-    path('all/', TicketsList.as_view(), name='all' ),
+    path('all/', MyTicketsList.as_view(), name='all' ),
+    path('all/plan<str:days>/', TicketPlan.as_view() ),
+    path('my/plan<str:days>/', TicketPlan.as_view() ),
+    path('my/', MyDepartmentTickets.as_view(), name='my_department_tickets' ),
     path('news/', NewTickets.as_view(), name='news' ),
     path('ticket/create/', CreateTicket.as_view(), name='create_ticket'),
     url('ticket/copy/(?P<number>\d+)$', CreateTicket.as_view(), name='copy'),
@@ -22,6 +25,5 @@ urlpatterns = [
     path('ticket/<str:number>/', TicketDetail.as_view(), name='ticket_detail_url'),
     path('share/', share_ticket, name='share'),
     # path('copy/', copy_ticket, name='copy'),
-    path('plan/', TicketPlan.as_view() ),
     path('report/', Report.as_view() ),
 ]

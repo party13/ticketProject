@@ -1,19 +1,50 @@
 from datetime import date
-from .models import News
+from .models import News, Ticket
 
 
-def user_dept(request):
+# def user_dept(request):
+#     """ gets user_name, department, and news from request """
+#     if request.user.is_authenticated:
+#         username = request.user
+#         updates = News.objects.filter(responsibleID__exact=username.id).count()
+#         dept_number = username.department
+#     else:
+#         updates = 0
+#         username = None
+#         dept_number = ''
+#     return username, dept_number, updates
+
+
+def initial(request, context=None):
     """ gets user_name, department, and news from request """
+
+    if not context:
+        context = {}
     if request.user.is_authenticated:
         username = request.user
-        updates = News.objects.filter(responsibleID__exact=username.id).count()
+        updates = News.objects.filter(responsibleID=username.id).count()
+        tickets = Ticket.objects.filter(responsible = username).exclude(status='closed')
         dept_number = username.department
+        themes = set(tickets.values_list('theme', flat=True))
+        text_result = found_ticket_text(len(tickets))
     else:
         updates = 0
         username = None
-        dept_number = ''
-    return username, dept_number, updates
+        dept_number = None
+        tickets = None
+        themes = None
+        text_result = None
 
+
+
+    context['text_result'] = text_result
+    context['user_name'] = username
+    context['dept_number'] = dept_number
+    context['updates'] = updates
+    context['tickets'] = tickets
+    context['themes'] = themes
+
+    return context
 
 def generate_number():
     # generates ticketNumber when created by user

@@ -55,11 +55,11 @@ class Department(models.Model):
         children = Department.objects.filter(path__regex = pattern).order_by('path')
         return children.exclude(path__exact = self.path)
 
-    def children_list(self):
-        return self.get_children()
+    # def children_list(self):
+    #     return self.get_children()
 
     def get_all_children(self):
-        # returns all children, including all children's cchildren
+        # returns all children, including all children's children
         children = Department.objects.filter(path__startswith = self.path).order_by('path')
         return children.exclude(path__exact = self.path)
 
@@ -147,6 +147,12 @@ class Ticket(models.Model):
         new.save()
         print('Ok, news-', new.id, 'ticket.id- ', new.ticketNumber, ' responsible ID- ', new.responsibleID)
 
+    def delete(self, *args, **kwargs):
+        if News.objects.filter(ticketNumber=self.id).exists():
+            new = News.objects.get(ticketNumber=self.id)
+            new.delete()
+        super(Ticket, self).delete(*args, **kwargs)
+
     def get_absolute_url(self):
         return reverse('ticket_detail_url', kwargs={'number': self.number})
 
@@ -209,8 +215,20 @@ class Ticket(models.Model):
         print('yes!')
         return True
 
+    def mayBeClosedAutomatically(self):
+        if not self.isSignedByResponsible:
+            return False
+        if not self.reports:
+            return False
+        if self.term < date.today():
+            return False
+        return True
+
+
+
 
     def closeTicket(self):
         self.status = 'closed'
+        self.term = date.today()        #may be changed later///??
         self.save()
 
