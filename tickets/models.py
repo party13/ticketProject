@@ -3,6 +3,7 @@ from django.shortcuts import reverse
 from datetime import date, timedelta
 from django.db.models.query import QuerySet
 #from .KB_users.models import KBUser
+from comments.models import Comment
 
 
 class Department(models.Model):
@@ -224,8 +225,8 @@ class Ticket(models.Model):
             return False
         return True
 
-
-
+    def comments(self):
+        return Comment.objects.filter(ticket=self)
 
     def closeTicket(self):
         self.status = 'closed'

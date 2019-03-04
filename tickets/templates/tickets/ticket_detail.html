@@ -180,6 +180,30 @@
             {% endif %}
         {% endif %}
         <hr>
+
+        {% block ticket_comments %}
+            {% if ticket.comments %}
+                {% for comment in ticket.comments %}
+                <div class="row">
+                            <div class="col-sm"> {{ comment.user }}:</div>
+                            <div class="col-sm"> {{ comment.when }}      </div>
+                        </div>
+                <div class="row">{{ comment.text }}</div>
+                {% endfor %}
+            {% endif %}
+            {% if ticket.status != 'closed' %}
+                {% if ticket.responsible == user_name or ticket.consumer == user_name%}
+                <form action="{% url 'add_ticket_comment' %}" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="tn" value="{{ticket.number}}">
+                    <input type="text">
+                    <button class="btn btn-outline-info btn-sm"  type="submit">
+                    <img src="/static/img/12.png" width="20" height="20"></button>
+
+                </form>
+                {% endif %}
+            {% endif %}
+        {% endblock %}
     </div>
 {% endblock %}
 

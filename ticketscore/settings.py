@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'tickets',
-    'KB_Users'
+    'KB_Users',
+    'comments'
 ]
 
 MIDDLEWARE = [

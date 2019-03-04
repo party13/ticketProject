@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('tickets/', include('tickets.urls')),
     path('users/', include('KB_Users.urls')),
+    path('comments/', include('comments.urls'))
     # path('', redirect(to='404.html')),
 
 ]
