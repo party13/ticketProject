@@ -12,7 +12,7 @@ def all_comments(request, tn):
         return render('comments.html', context=comments)
 
 
-def add_comment(request, tn):
+def add_comment(request):
     text = request.POST.get('comment_text', '') or None
     ticket_number = request.POST.get('tn', '') or None
     ticket = Ticket.objects.get(number = ticket_number)

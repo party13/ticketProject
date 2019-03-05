@@ -183,7 +183,6 @@
 
         {% if ticket.comments %}
             {% block ticket_comments %}
-
                 {% for comment in ticket.comments %}
                 <div class="card bg-light " >
                   <div class="card-header">
@@ -203,7 +202,10 @@
                   </div>
                 </div>
                 {% endfor %}
-            {% if ticket.status != 'closed' %}
+
+        {% endblock %}
+        {% endif %}
+{% if ticket.status != 'closed' %}
                 {% if ticket.responsible == user_name or ticket.consumer == user_name%}
                 <form action="{% url 'add_ticket_comment' %}" method="post">
                     {% csrf_token %}
@@ -215,9 +217,6 @@
                 </form>
                 {% endif %}
             {% endif %}
-        {% endblock %}
-        {% endif %}
-
     </div>
 {% endblock %}
 
