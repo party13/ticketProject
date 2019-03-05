@@ -181,22 +181,34 @@
         {% endif %}
         <hr>
 
-        {% block ticket_comments %}
-            {% if ticket.comments %}
+        {% if ticket.comments %}
+            {% block ticket_comments %}
+
                 {% for comment in ticket.comments %}
-                <div class="row">
-                            <div class="col-sm"> {{ comment.user }}:</div>
-                            <div class="col-sm"> {{ comment.when }}      </div>
+                <div class="card bg-light " >
+                  <div class="card-header">
+                      <div class="row">
+                            <div class="col-sm"> <small> <strong>{{ comment.user }}:</strong></small></div>
+                            <div class="col-sm" align="right"> <small>{{ comment.when }}    </small>  </div>
                         </div>
-                <div class="row">{{ comment.text }}</div>
+                  </div>
+                  <div class="card-body">
+                    <p class="card-text"><small>{{ comment.text }}</small>
+                        {% if comment.user == user_name %}
+                            <a href="{% url 'delete_comment' id=comment.id %}" class="badge badge-light"
+                      data-toggle="tooltip" title="Удалить комментарий">
+                                <img src="/static/img/13.png" width="15" height="15" > </a>
+                        {% endif %}
+                    </p>
+                  </div>
+                </div>
                 {% endfor %}
-            {% endif %}
             {% if ticket.status != 'closed' %}
                 {% if ticket.responsible == user_name or ticket.consumer == user_name%}
                 <form action="{% url 'add_ticket_comment' %}" method="post">
                     {% csrf_token %}
                     <input type="hidden" name="tn" value="{{ticket.number}}">
-                    <input type="text">
+                    <input type="text" name="comment_text">
                     <button class="btn btn-outline-info btn-sm"  type="submit">
                     <img src="/static/img/12.png" width="20" height="20"></button>
 
@@ -204,6 +216,8 @@
                 {% endif %}
             {% endif %}
         {% endblock %}
+        {% endif %}
+
     </div>
 {% endblock %}
 

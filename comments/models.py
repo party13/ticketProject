@@ -19,11 +19,13 @@ class Comment(models.Model):
     def __str__(self):
         return ' {} - {}'.format(self.text, self.when)
 
-    def save(self, ticket = None, user=None, *args, **kwargs):
-        if ticket and user:
-            self.when = datetime.today()
-            super(Comment, self).save(*args, **kwargs)
-            print('ok, cmnt')
+    def save(self,  *args, **kwargs):
+
+        self.when = datetime.today()
+        # self.ticket = ticket
+        # self.user=user
+        super(Comment, self).save(*args, **kwargs)
+        print('ok, cmnt')
 
 
 
