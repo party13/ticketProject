@@ -127,6 +127,11 @@ class MyDepartmentTickets(View):
         context = initial(request)
         dept_number = context.get('dept_number')
         myChildren = [UserKB.objects.get(id=x) for x in dept_number.get_all_children().values_list('boss', flat=True)]
+        if not myChildren:
+            try:
+                myChildren = UserKB.objects.filter(department=dept_number).exclude(id=request.user.id)
+            except:
+                pass
         tickets = Ticket.objects.filter(responsible__in=myChildren).exclude(status='closed')
 
         theme_filter = request.GET.get('theme', '')

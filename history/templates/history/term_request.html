@@ -1,0 +1,20 @@
+{% extends 'tickets\ticket_detail.html'  %}
+
+{% block ticket_message %}
+
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <strong align="center">Запросить у {{ supervisor }} продление срока ?</strong>
+            <div class="row">
+                <div class="col-sm" align="center">
+                    <form action="{% url 'term_request' number=ticket.number %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-danger">Запросить пернос срока карточки</button>
+                    </form>
+                </div>
+                <div class="col-sm" align="center">
+                    <button class="btn btn-sm btn-success" data-dismiss="alert">Отмена</button>
+                </div>
+            </div>
+        </div>
+
+{% endblock %}

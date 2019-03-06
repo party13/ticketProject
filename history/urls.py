@@ -1,0 +1,12 @@
+from django.urls import path, include
+from django.conf.urls import  url
+from django.contrib.auth import views as auth_views
+from .views import *
+
+
+
+urlpatterns = [
+    url('term_request/(?P<number>\d+)$', TermRequest.as_view(), name='term_request'),
+    url('term_confirm/(?P<number>\d+)$', TermConfirm.as_view(), name='confirm_term_change'),
+
+]

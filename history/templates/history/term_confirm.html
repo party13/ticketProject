@@ -1,0 +1,22 @@
+{% extends 'tickets\ticket_detail.html'  %}
+
+{% block ticket_message %}
+
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <strong align="center">{{ requester }} запросил(а) перенос срока на {{term_change_date}}?</strong>
+        <div class="row"> Комментарий {{term_change_explain}} </div>
+        <div class="row">
+            <div class="col-sm" align="center">
+                <form action="{% url 'confirm_term_change' number=ticket.number %}" method="post">
+                {% csrf_token %}
+                    <input type="date" id="new_term">
+                <button type="submit" class="btn btn-sm btn-danger">Согласовать перенос срока карточки</button>
+                </form>
+            </div>
+            <div class="col-sm" align="center">
+                <button class="btn btn-sm btn-success" data-dismiss="alert">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
