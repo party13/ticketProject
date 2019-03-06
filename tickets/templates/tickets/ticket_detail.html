@@ -8,11 +8,7 @@
     <div class="col-8 offset-md-2">
         <div class="container">
           <div class="row">
-              <div class="col-sm">
-                  <a href="{% url 'share' %}?number={{ticket.number}}" class="badge badge-light">
-                      <img src="/static/img/10-30.png" width="20" height="20" alt="share">
-                  </a>
-              </div>
+
               <div class="col-sm">
                   <a href="/tickets/ticket/copy/{{ticket.number}}" class="badge badge-light"
                      data-toggle="tooltip" title="Скопировать эту карточку">
@@ -91,11 +87,13 @@
                             <form action="{% url 'sign_ticket'  %}" method="post">
                                 {% csrf_token %}
                                <input type="hidden"  name="tn" value="{{ticket.number}}">
-                               <button type="submit" class="btn btn-sm btn-success">подписать</button>
+                               <button type="submit" class="btn btn-sm btn-success">
+                                   <img src="/static/img/23.png" width="20" height="20" >подписать</button>
                             </form>
                           {% else %}
                             <button class="btn btn-secondary disabled" data-toggle="tooltip"
                                     data-placement="top" title="Нужно добавить отчетные материалы">
+                                <img src="/static/img/23.png" width="20" height="20" >
                                 подписать</button>
                           {% endif %}
                         {% else %}
@@ -113,12 +111,14 @@
                                    {% csrf_token %}
                                    <input type="hidden" name="tn" value="{{ticket.number}}">
                                    <button type="submit" class="btn btn-success" data-toggle="tooltip">
+                                       <img src="/static/img/23.png" width="20" height="20" >
                                        {% if ticket.mayBeClosedAutomatically %} закрыть {% else %} подписать {% endif %}
                                    </button>
                                 </form>
                             {% else %}
                                 <button class="btn btn-secondary disabled" data-toggle="tooltip"
                                     data-placement="top" title="Вначале должен подписать Исполнитель">
+                                    <img src="/static/img/23.png" width="20" height="20" >
                                 подписать</button>
                             {% endif %}
                          {% else %}
@@ -157,6 +157,7 @@
         <hr>
         <p> <strong>Отчетные материалы: </strong></p>
         <p> {% if ticket.reports %} {{ ticket.reports }} {% else %} Нет отчетных материалов {% endif %}</p>
+
         {% if ticket.responsible == user_name %}
             {% if not ticket.isSignedByResponsible %}
                 <form class="form-inline" action="{% url 'make_reports' %}" method="post">
@@ -169,7 +170,7 @@
                         <input type="file" class="form-control-file" id="exampleFormControlFile1">
                       </div>
                       <div class="col-auto" align="right">
-                         <button type="submit" class="btn btn-primary mb-2">Прикрепить</button>
+                         <button type="submit" class="btn btn-info mb-2"><img src="/static/img/14.png" width="20" height="20" >Прикрепить</button>
                       </div>
                   </div>
                 </form>
@@ -181,42 +182,15 @@
         {% endif %}
         <hr>
 
-        {% if ticket.comments %}
-            {% block ticket_comments %}
-                {% for comment in ticket.comments %}
-                <div class="card bg-light " >
-                  <div class="card-header">
-                      <div class="row">
-                            <div class="col-sm"> <small> <strong>{{ comment.user }}:</strong></small></div>
-                            <div class="col-sm" align="right"> <small>{{ comment.when }}    </small>  </div>
-                        </div>
-                  </div>
-                  <div class="card-body">
-                    <p class="card-text"><small>{{ comment.text }}</small>
-                        {% if comment.user == user_name %}
-                            <a href="{% url 'delete_comment' id=comment.id %}" class="badge badge-light"
-                      data-toggle="tooltip" title="Удалить комментарий">
-                                <img src="/static/img/13.png" width="15" height="15" > </a>
-                        {% endif %}
-                    </p>
-                  </div>
-                </div>
-                {% endfor %}
 
+        <a href="{% url 'show_comments' number=ticket.number %}" class="badge badge-light"
+        data-toggle="tooltip" ><button><img src="/static/img/15.png" width="20" height="20" >замечания
+          {% if ticket.comments_quantity != 0 %}:{{ticket.comments_quantity}} {% endif %}</button>
+        </a>
+        {% block ticket_comments %}
         {% endblock %}
-        {% endif %}
-{% if ticket.status != 'closed' %}
-                {% if ticket.responsible == user_name or ticket.consumer == user_name%}
-                <form action="{% url 'add_ticket_comment' %}" method="post">
-                    {% csrf_token %}
-                    <input type="hidden" name="tn" value="{{ticket.number}}">
-                    <input type="text" name="comment_text">
-                    <button class="btn btn-outline-info btn-sm"  type="submit">
-                    <img src="/static/img/12.png" width="20" height="20"></button>
 
-                </form>
-                {% endif %}
-            {% endif %}
+
     </div>
 {% endblock %}
 

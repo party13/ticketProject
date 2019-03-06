@@ -32,12 +32,12 @@
             <div class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ user_name }}</a>
                 <div class="dropdown-menu">
-                  {% if user_name.is_boss %}<a class="dropdown-item" href="{% url 'create_ticket' %}">Создать карточку</a>{% endif %}
-                  <a class="dropdown-item" href="{% url 'cabinet' %}">Кабинет</a>
-                  <a class="dropdown-item" href="{% url 'password_change' %}">Сменить пароль</a>
-                  <a class="dropdown-item" href="#">Помощь</a>
+                  {% if user_name.is_boss %}<a class="dropdown-item" href="{% url 'create_ticket' %}"><img src="/static/img/16.png" width="20" height="20" >Создать карточку</a>{% endif %}
+                  <a class="dropdown-item" href="{% url 'cabinet' %}"><img src="/static/img/17.png" width="20" height="20" >Кабинет</a>
+                  <a class="dropdown-item" href="{% url 'password_change' %}"><img src="/static/img/22.png" width="20" height="20" >Сменить пароль</a>
+                  <a class="dropdown-item" href="#"><img src="/static/img/21.png" width="20" height="20" >Помощь</a>
                   <hr>
-                  <a class="dropdown-item" href="{% url 'logout' %}">Выйти</a>
+                  <a class="dropdown-item" href="{% url 'logout' %}"><img src="/static/img/19.png" width="20" height="20" >Выйти</a>
                 </div>
             </div>
     {% else %}

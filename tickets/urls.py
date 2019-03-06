@@ -23,7 +23,7 @@ urlpatterns = [
     path('ticket/make_reports/', make_reports, name='make_reports'),
 
     path('ticket/<str:number>/', TicketDetail.as_view(), name='ticket_detail_url'),
-    path('share/', share_ticket, name='share'),
+    # path('share/', share_ticket, name='share'),
     # path('copy/', copy_ticket, name='copy'),
     path('report/', Report.as_view() ),
 ]

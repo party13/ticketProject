@@ -1,25 +1,30 @@
+{% extends 'tickets\ticket_detail.html'  %}
 
 {% block ticket_comments %}
-
-    {% for comment in ticket.comments %}
-    <div class="card bg-light " >
-      <div class="card-header">
-          <div class="row">
+    {% if ticket.comments %}
+        {% for comment in ticket.comments %}
+        <div class="card bg-light " >
+          <div class="card-header">
+              <div class="row">
                 <div class="col-sm"> <small> <strong>{{ comment.user }}:</strong></small></div>
                 <div class="col-sm" align="right"> <small>{{ comment.when }}    </small>  </div>
-            </div>
-      </div>
-      <div class="card-body">
-        <p class="card-text"><small>{{ comment.text }}</small>
-            {% if comment.user == user_name %}
-                <a href="{% url 'delete_comment' id=comment.id %}" class="badge badge-light"
-          data-toggle="tooltip" title="Удалить комментарий">
-                    <img src="/static/img/13.png" width="15" height="15" > </a>
-            {% endif %}
-        </p>
-      </div>
-    </div>
-    {% endfor %}
+              </div>
+          </div>
+          <div class="card-body">
+            <p class="card-text"><small>{{ comment.text }}</small>
+                {% if comment.user == user_name %}
+                    <a href="{% url 'delete_comment' id=comment.id %}" class="badge badge-light"
+              data-toggle="tooltip" title="Удалить комментарий">
+                        <img src="/static/img/13.png" width="15" height="15" > </a>
+                {% endif %}
+            </p>
+          </div>
+        </div>
+        {% endfor %}
+
+    {% else %}
+        Нет замечаний
+    {% endif %}
 
     {% if ticket.status != 'closed' %}
         {% if ticket.responsible == user_name or ticket.consumer == user_name%}
@@ -28,11 +33,9 @@
             <input type="hidden" name="tn" value="{{ticket.number}}">
             <input type="text" name="comment_text">
             <button class="btn btn-outline-info btn-sm"  type="submit">
-            <img src="/static/img/12.png" width="20" height="20"></button>
-
+            <img src="/static/img/12.png" width="20" height="20">оставить замечание</button>
         </form>
         {% endif %}
     {% endif %}
-
 
 {% endblock %}

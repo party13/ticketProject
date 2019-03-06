@@ -152,6 +152,9 @@ class Ticket(models.Model):
         if News.objects.filter(ticketNumber=self.id).exists():
             new = News.objects.get(ticketNumber=self.id)
             new.delete()
+        if Comment.objects.filter(ticket=self).exists():
+            cmnts = Comment.objects.filter(ticket=self)
+            cmnts.delete()
         super(Ticket, self).delete(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -227,6 +230,9 @@ class Ticket(models.Model):
 
     def comments(self):
         return Comment.objects.filter(ticket=self)
+
+    def comments_quantity(self):
+        return Comment.objects.filter(ticket=self).count()
 
     def closeTicket(self):
         self.status = 'closed'

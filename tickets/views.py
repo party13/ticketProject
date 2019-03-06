@@ -84,11 +84,11 @@ def make_reports(request):
     return redirect(ticket_q.first())
 
 
-def share_ticket(request):
-    number = request.GET.get('number', '')
-    ticket = Ticket.objects.get(number=number)
-    url = number
-    return redirect(ticket)
+# def share_ticket(request):
+#     number = request.GET.get('number', '')
+#     ticket = Ticket.objects.get(number=number)
+#     url = number
+#     return redirect(ticket)
 
 
 class MyTicketsList(View):
