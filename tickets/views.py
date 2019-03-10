@@ -3,6 +3,7 @@
 # from django.contrib import sessions
 # from django.forms import ModelMultipleChoiceField
 # from django.http import HttpResponse
+from django.contrib.auth.mixins import LoginRequiredMixin
 from KB_Users.models import UserKB
 from django.shortcuts import render, redirect, reverse
 from .models import Ticket, News
@@ -98,27 +99,25 @@ class MyTicketsList(View):
 
         theme_filter = request.GET.get('theme', '')
         user_filter = request.GET.get('user', '')
-
         if theme_filter:
-            tickets = tickets.filter(theme__iexact=theme_filter)
-
+            tickets = tickets.filter(theme=theme_filter)
         if user_filter:
             tickets = tickets.filter(responsible=user_filter)
 
-        text_result = found_ticket_text(len(tickets))
+        if tickets:
+            text_result = found_ticket_text(len(tickets))
+            paginator = Paginator(tickets, 15)
+            page_number = request.GET.get('page', 1)
+            page = paginator.get_page(page_number)
+            is_paginated = page.has_other_pages()
+            prev_url = '?page={}'.format(page.previous_page_number()) if page.has_previous() else ''
+            next_url = '?page={}'.format(page.next_page_number()) if page.has_next() else ''
 
-        paginator = Paginator(tickets, 15)
-        page_number = request.GET.get('page', 1)
-        page = paginator.get_page(page_number)
-        is_paginated = page.has_other_pages()
-        prev_url = '?page={}'.format(page.previous_page_number()) if page.has_previous() else ''
-        next_url = '?page={}'.format(page.next_page_number()) if page.has_next() else ''
-
-        context['text_result'] = text_result
-        context['page_object'] = page
-        context['is_paginated'] = is_paginated
-        context['prev_url'] = prev_url
-        context['next_url'] = next_url
+            context['text_result'] = text_result
+            context['page_object'] = page
+            context['is_paginated'] = is_paginated
+            context['prev_url'] = prev_url
+            context['next_url'] = next_url
         return render(request, 'tickets/index.html', context=context)
 
 
@@ -209,9 +208,10 @@ class TicketDetail(View):
         return render(request, 'tickets/index.html', context={})
 
 
-class CreateTicket(View):
+class CreateTicket(LoginRequiredMixin, View):
     template = 'tickets/ticket_create_form.html'
     instance = None
+    login_url = 'login_url'
 
     def get(self, request, number=None):
         if number:

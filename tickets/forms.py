@@ -1,17 +1,25 @@
 from django.forms import ModelForm, Form
 #     ModelMultipleChoiceField
+from django import forms
 from django.forms import SelectDateWidget, CheckboxSelectMultiple
 from django.contrib.admin.widgets import AdminDateWidget
 from .models import Ticket
 from datetime import date
 from django.core.exceptions import ValidationError
 from django.core.mail import EmailMultiAlternatives
+from django.forms.widgets import DateInput
 
+
+class CalendarWidget(forms.TextInput):
+    class Media:
+        css = {'widgets.css'}
+        js = ('actions.js', 'calendar.js')
 
 class CreateTicketForm(ModelForm):
     def __init__(self, user=None, *args, **kwargs):
         # print('initing form')
         super(CreateTicketForm, self).__init__(*args, **kwargs)
+        # self.fields['term'].widget = AdminDateWidget()
         # self.fields['term'].widget = SelectDateWidget()
         if user:
             self.fields['responsible'].queryset = user.get_children() or user.get_my_workers()
@@ -24,7 +32,6 @@ class CreateTicketForm(ModelForm):
             raise ValidationError('Назначение срока "на вчера" Вам не к лицу. Поставьте корректную дату', code='invalid')
         return data
 
-
     class Meta:
         model = Ticket
         fields = ['theme', 'job', 'term', 'responsible']
@@ -35,7 +42,7 @@ class CreateTicketForm(ModelForm):
         autocomplete_fields = ['theme']
 
         widgets = {
-             'term': SelectDateWidget,
+             'term': AdminDateWidget(),
             # 'responsible' : CheckboxSelectMultiple
                    }
 

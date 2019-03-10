@@ -13,7 +13,12 @@ class TicketTermRequest(models.Model):
                                related_name='destination', null=True)
     when = models.DateTimeField()
     text = models.TextField()
-    newDate = models.DateField
+    newDate = models.DateField(default=None)
+
+    def save(self, *args, **kwargs):
+        self.when = date.today()
+        super(TicketTermRequest, self).save(*args, **kwargs)
+        print('ok, new term request')
 
 
 # class Routing(models.Model):

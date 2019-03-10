@@ -16,6 +16,7 @@
                   </a>
               </div>
               <div class="col-sm">
+
                   <a href="{% url 'term_request' number=ticket.number %}" class="badge badge-light">
                       <img src="/static/img/4-30.png" width="20" height="20" alt="prolongate">
                   </a>
@@ -64,6 +65,7 @@
           </div>
         </div>
         {% block ticket_message %}
+            Комменты
         {% endblock %}
         <table class="table">
 
@@ -193,4 +195,3 @@
 
     </div>
 {% endblock %}
-

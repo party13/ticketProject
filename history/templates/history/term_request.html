@@ -1,20 +1,45 @@
 {% extends 'tickets\ticket_detail.html'  %}
 
+{% block head %}
+    {% load i18n %}
+    <!--{% load static %}-->
+<script type="text/javascript" src="{% url 'javascript_catalog' %}"></script>
+<link rel="stylesheet" type="text/css" href="/static/admin/css/forms.css">
+<script type="text/javascript" src="/static/admin/js/jquery.init.js"></script>
+<script type="text/javascript" src="/static/admin/js/core.js"></script>
+<script type="text/javascript" src="/static/admin/js/calendar.js"></script>
+<script type="text/javascript" src="/static/admin/js/admin/DateTimeShortcuts.js"></script>
+
+{% endblock %}
+
 {% block ticket_message %}
 
         <div class="alert alert-info alert-dismissible fade show" role="alert">
             <strong align="center">Запросить у {{ supervisor }} продление срока ?</strong>
-            <div class="row">
-                <div class="col-sm" align="center">
-                    <form action="{% url 'term_request' number=ticket.number %}" method="post">
+                <form action="{% url 'term_request' number=ticket.number %}" method="post">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-danger">Запросить пернос срока карточки</button>
-                    </form>
-                </div>
-                <div class="col-sm" align="center">
-                    <button class="btn btn-sm btn-success" data-dismiss="alert">Отмена</button>
-                </div>
-            </div>
+                        {% for field in form %}
+                            <div class="form-group">
+                                {% if field.errors %}
+                                    <div class="alert alert-danger">
+                                        {{ field.errors }}
+                                     </div>
+                                {% endif %}
+                                <div class="row">
+                                    <div class="col-sm"> {{ field.label }}:</div>
+                                    <div class="col-sm"> {{ field }}      </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                    <!--<input type="date" name="newdate" placeholder="{{lastdate}}">-->
+                    <div class="row">
+                        <div class="col-sm"></div>
+                        <div class="col-sm"><button class="btn btn-sm btn-secondary" data-dismiss="alert">Отмена</button></div>
+                        <div class="col-sm"><button type="submit" class="btn btn-sm btn-success">Запросить перенос срока</button></div>
+
+                    </div>
+                </form>
         </div>
 
 {% endblock %}

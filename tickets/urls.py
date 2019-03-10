@@ -4,6 +4,8 @@ from django.contrib.auth import views as auth_views
 from .views import *
 
 
+from django.views.i18n import null_javascript_catalog
+
 
 urlpatterns = [
     path('', MyTicketsList.as_view(), name='index_page'),
@@ -26,4 +28,5 @@ urlpatterns = [
     # path('share/', share_ticket, name='share'),
     # path('copy/', copy_ticket, name='copy'),
     path('report/', Report.as_view() ),
+    url(r'^jsi18n/$', null_javascript_catalog, name='javascript_catalog'),
 ]
