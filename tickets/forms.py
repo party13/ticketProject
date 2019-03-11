@@ -35,9 +35,7 @@ class CreateTicketForm(ModelForm):
     class Meta:
         model = Ticket
         fields = ['theme', 'job', 'term', 'responsible']
-        labels = {
-            'responsible': 'Ответственный',
-        }
+        labels = {'responsible': 'Ответственный',}
 
         autocomplete_fields = ['theme']
 
@@ -45,6 +43,36 @@ class CreateTicketForm(ModelForm):
              'term': AdminDateWidget(),
             # 'responsible' : CheckboxSelectMultiple
                    }
+
+
+class TermConfirmForm(ModelForm):
+
+    def __init__(self, newterm=None, *args, **kwargs):
+        print('initing form')
+        super(TermConfirmForm, self).__init__(*args, **kwargs)
+        if newterm:
+            print ('ok newterm received ',newterm)
+            self.fields['term'].initial = newterm
+
+
+    def clean_term(self):
+        data = self.cleaned_data['term']
+        if data < date.today():
+            raise ValidationError('Поставьте корректную дату', code='invalid')
+        return data
+
+
+    class Meta:
+        model = Ticket
+        fields = ['term']
+        labels = {
+            'term': 'Новый срок',
+        }
+
+        widgets = {
+            'term': AdminDateWidget(),
+        }
+
 
 class ShareTicketForm(Form):
     def save(self, user, link):

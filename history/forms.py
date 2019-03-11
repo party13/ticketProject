@@ -1,4 +1,4 @@
-from django.forms import ModelForm, Form
+from django.forms import ModelForm, Form, Textarea
 #     ModelMultipleChoiceField
 from django import forms
 # from django.forms import SelectDateWidget, CheckboxSelectMultiple
@@ -9,8 +9,8 @@ from django.core.exceptions import ValidationError
 # from django.core.mail import EmailMultiAlternatives
 # from django.forms.widgets import DateInput
 
-class TermRequestForm(ModelForm):
 
+class TermRequestForm(ModelForm):
     def clean_newDate(self):
         # automatically raised method when cleaning field 'term'
         # during form validation . return data is MUST
@@ -34,5 +34,6 @@ class TermRequestForm(ModelForm):
         }
 
         widgets = {
-             'newDate': AdminDateWidget(),
+            'newDate': AdminDateWidget(),
+            'text':Textarea(attrs={'cols': 50, 'rows': 3}),
                    }

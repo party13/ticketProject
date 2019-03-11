@@ -26,17 +26,16 @@
                                      </div>
                                 {% endif %}
                                 <div class="row">
-                                    <div class="col-sm"> {{ field.label }}:</div>
-                                    <div class="col-sm"> {{ field }}      </div>
+                                    <div class="col-4"> {{ field.label }}:</div>
+                                    <div class="col-8"> {{ field }}      </div>
                                 </div>
                             </div>
                         {% endfor %}
 
                     <!--<input type="date" name="newdate" placeholder="{{lastdate}}">-->
-                    <div class="row">
-                        <div class="col-sm"></div>
-                        <div class="col-sm"><button class="btn btn-sm btn-secondary" data-dismiss="alert">Отмена</button></div>
-                        <div class="col-sm"><button type="submit" class="btn btn-sm btn-success">Запросить перенос срока</button></div>
+                   <div class="row justify-content-md-center">
+                        <div class="col-3"><button class="btn btn-sm btn-secondary" data-dismiss="alert">Отмена</button></div>
+                        <div class="col-3"><button type="submit" class="btn btn-sm btn-success">Запросить перенос срока</button></div>
 
                     </div>
                 </form>

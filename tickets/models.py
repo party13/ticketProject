@@ -4,6 +4,7 @@ from datetime import date, timedelta
 from django.db.models.query import QuerySet
 #from .KB_users.models import KBUser
 from comments.models import Comment
+from history.models import TicketTermRequest
 
 
 class Department(models.Model):
@@ -102,6 +103,7 @@ class Department(models.Model):
 
 class News(models.Model):
     responsibleID = models.CharField(max_length=10, db_index=True)
+    # ticketNumber - is a ticketID releation
     ticketNumber = models.IntegerField()
 
 
@@ -155,6 +157,9 @@ class Ticket(models.Model):
         if Comment.objects.filter(ticket=self).exists():
             cmnts = Comment.objects.filter(ticket=self)
             cmnts.delete()
+        if TicketTermRequest.objects.filter(ticketID=self).exists():
+            ttrs = TicketTermRequest.objects.filter(ticketID=self)
+            ttrs.delete()
         super(Ticket, self).delete(*args, **kwargs)
 
     def get_absolute_url(self):
@@ -233,6 +238,16 @@ class Ticket(models.Model):
 
     def comments_quantity(self):
         return Comment.objects.filter(ticket=self).count()
+
+    def term_requested(self):
+        return TicketTermRequest.objects.filter(ticketID=self).exists()
+
+    def term_request(self):
+        try:
+            return TicketTermRequest.objects.filter(ticketID=self)
+        except:
+            return None
+
 
     def closeTicket(self):
         self.status = 'closed'

@@ -27,13 +27,15 @@
     {% endif %}
 
     {% if ticket.status != 'closed' %}
-        {% if ticket.responsible == user_name or ticket.consumer == user_name%}
+        {% if ticket.responsible == user_name or ticket.consumer == user_name %}
         <form action="{% url 'add_ticket_comment' %}" method="post">
             {% csrf_token %}
             <input type="hidden" name="tn" value="{{ticket.number}}">
-            <input type="text" name="comment_text">
-            <button class="btn btn-outline-info btn-sm"  type="submit">
-            <img src="/static/img/12.png" width="20" height="20">оставить замечание</button>
+            <div class="row">
+                <div class="col-8"><strong> {{user_name}} :   </strong><textarea cols="40" rows="2" name="comment_text"></textarea></div>
+                <div class="col-md-auto"><button class="btn btn-outline-info btn-sm"  type="submit">
+            <img src="/static/img/12.png" width="20" height="20">оставить замечание</button></div>
+            </div>
         </form>
         {% endif %}
     {% endif %}

@@ -16,9 +16,13 @@
                   </a>
               </div>
               <div class="col-sm">
-
-                  <a href="{% url 'term_request' number=ticket.number %}" class="badge badge-light">
-                      <img src="/static/img/4-30.png" width="20" height="20" alt="prolongate">
+                  {% if ticket.responsible == user_name %}
+                    {% if not ticket.term_requested %}
+                      <a href="{% url 'term_request' number=ticket.number %}" class="badge badge-light">
+                    {% else %}
+                    {% endif %}
+                  {% endif %}
+                      <img src="/static/img/4-30.png" width="20" height="20" alt="prolongate" data-toggle="tooltip" title="Запросить перенос срока">
                   </a>
               </div>
               <div class="col-sm">
@@ -65,7 +69,16 @@
           </div>
         </div>
         {% block ticket_message %}
-            Комменты
+            {% if ticket.term_requested and ticket.consumer == user_name %}
+        <div class="alert alert-warning">
+            <strong><a href="{% url 'confirm_term_change' number=ticket.number %}"
+                          data-toggle="tooltip" title="Показать запрос">Новый запрос на изменение срока!
+
+                          </a></strong>
+        </div>
+
+        <p></p>
+            {% endif %}
         {% endblock %}
         <table class="table">
 
@@ -150,9 +163,21 @@
         <p>  {{ ticket.job }} </p>
         <hr>
         {% if ticket.status  != 'closed' %}
-        <p {% if ticket.ticket_is_out_of_term %} class = "alert alert-danger" {% endif %}> срок : {{ ticket.get_ticket_term }}  - {{ ticket.get_ticket_expiration }}
+        <div {% if ticket.ticket_is_out_of_term %}class="row alert alert-danger"{% else %}class="row"{% endif %} >
+            <div  class = "col-8 "  >
+              <p > срок : {{ ticket.get_ticket_term }}  - {{ ticket.get_ticket_expiration }}
+              </p>
+            </div>
+            {% if ticket.responsible == user_name %}
+                {% if not ticket.term_requested %}
+                    <div class="col-4" align="right" >
+                        <button > <a href="{% url 'term_request' number=ticket.number %}" class="badge badge-light">Запросить перенос срока</a></button>
+                    </div>
+                {% endif %}
+            {% endif %}
 
-        </p>
+        </div>
+
         {% else %}
         <strong>Была закрыта: {{ticket.term}} </strong>
         {% endif %}
@@ -187,7 +212,7 @@
 
         <a href="{% url 'show_comments' number=ticket.number %}" class="badge badge-light"
         data-toggle="tooltip" ><button><img src="/static/img/15.png" width="20" height="20" >замечания
-          {% if ticket.comments_quantity != 0 %}:{{ticket.comments_quantity}} {% endif %}</button>
+          {% if ticket.comments_quantity != 0 %}: {{ticket.comments_quantity}} {% endif %}</button>
         </a>
         {% block ticket_comments %}
         {% endblock %}
