@@ -129,11 +129,13 @@ class Ticket(models.Model):
     responsible = models.ForeignKey('KB_Users.UserKB',
                                     default=1,
                                     on_delete='SET_DEFAULT',
-                                    related_name='responsible')
+                                    related_name='responsible',
+                                    verbose_name='Ответственный')
     consumer = models.ForeignKey('KB_Users.UserKB',
-                                    default=1,
-                                    on_delete='SET_DEFAULT',
-                                    related_name='consumer')
+                                 default=1,
+                                 on_delete='SET_DEFAULT',
+                                 related_name='consumer',
+                                 verbose_name='Потребитель')
     class Meta:
         ordering=['term']
         verbose_name = 'Карточка'
