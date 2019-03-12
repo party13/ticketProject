@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'tickets',
     'KB_Users',
     'comments',
-    'history'
+    'history',
+    'signers'
 ]
 
 MIDDLEWARE = [

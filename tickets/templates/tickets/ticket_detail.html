@@ -19,7 +19,7 @@
                   {% if ticket.responsible == user_name %}
                     {% if not ticket.term_requested %}
                       <a href="{% url 'term_request' number=ticket.number %}" class="badge badge-light">
-                    {% else %}
+
                     {% endif %}
                   {% endif %}
                       <img src="/static/img/4-30.png" width="20" height="20" alt="prolongate" data-toggle="tooltip" title="Запросить перенос срока">
@@ -31,17 +31,20 @@
                   </a>
               </div>
               <div class="col-sm">
+                  {% if ticket.status != 'closed' %}
                   <a href="#redirect" class="badge badge-light">
+                  {% endif %}
                       <img src="/static/img/30-30.png" width="20" height="20">
                   </a>
               </div>
               <div class="col-sm">
-                  <a href="#back" class="badge badge-light">
-                      <img src="/static/img/20-30.png" width="20" height="20">
+                  {% if ticket.status != 'closed' and ticket.consumer == user_name and ticket.isSignedByResponsible %}
+                  <a href="{% url 'reject_ticket' number=ticket.number %}" class="badge badge-light">
+                  {% endif %}
+                      <img src="/static/img/20-30.png" width="20" height="20" data-toggle="tooltip" title="Вернуть карточку">
                   </a>
               </div>
               {% if ticket.consumer == user_name %}
-
                       <div class="col-sm">
                           {% if ticket.status != 'closed' and not ticket.isSignedByCustomer %}
                           <a href="{% url 'edit_ticket' number=ticket.number %}" class="badge badge-light"
@@ -55,8 +58,10 @@
                       </div>
 
                   <div class="col-sm">
+                      {% if ticket.status != 'closed' and ticket.consumer == user_name  %}
                       <a href="{% url 'delete_ticket' number=ticket.number %}" class="badge badge-light"
                       data-toggle="tooltip" title="Удалить эту карточку">
+                      {% endif %}
                           <img src="/static/img/11.png" width="20" height="20" >
                       </a>
                   </div>
@@ -155,6 +160,41 @@
                 <th align="left"><h6>{{ ticket.osn }}</h6> </th>
 
             </tr>
+
+            {% if ticket.signers_exist %}
+                {% for signer in ticket.signers %}
+                    <tr>
+                        <th>
+                            {% if signer == user_name %}
+                                <form action="##" method="post">
+                                    {% csrf_token %}
+                                   <input type="hidden"  name="tn" value="{{ticket.id}}">
+                                   <input type="hidden"  name="un" value="{{user_name.id}}">
+                                    <button class ="" type="submit" data-toggle="tooltip"
+                                data-placement="top" title="визировать">
+                                       <img src="/static/img/23.png" >{{signer}}</button>
+                                </form>
+
+                            {% else %}
+                                <small>{{signer}}</small>
+                            {% endif %}
+                        </th>
+                        <th><small>{{signer.department}}</small></th>
+                        <th>{% if signer.isSigned %}
+                            <small>завизировано</small><img src="/static/img/5.png" width="20" height="20">
+                            {% else %}
+
+                                <small>еще не визировал</small>
+
+                            {% endif %}
+                        </th>
+                        <th> {% if  signer.isSigned%} {{signer.signDate}} {% endif %}</th>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+
+
+
             </tbody>
         </table>
 
@@ -185,7 +225,7 @@
         <p> <strong>Отчетные материалы: </strong></p>
         <p> {% if ticket.reports %} {{ ticket.reports }} {% else %} Нет отчетных материалов {% endif %}</p>
 
-        {% if ticket.responsible == user_name %}
+        {% if ticket.responsible == user_name or user_name in ticket.signers %}
             {% if not ticket.isSignedByResponsible %}
                 <form class="form-inline" action="{% url 'make_reports' %}" method="post">
                     {% csrf_token %}
@@ -208,7 +248,6 @@
             {% endif %}
         {% endif %}
         <hr>
-
 
         <a href="{% url 'show_comments' number=ticket.number %}" class="badge badge-light"
         data-toggle="tooltip" ><button><img src="/static/img/15.png" width="20" height="20" >замечания

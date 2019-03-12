@@ -2,7 +2,8 @@ from django.db import models
 from django.shortcuts import reverse
 from datetime import date, timedelta
 from django.db.models.query import QuerySet
-#from .KB_users.models import KBUser
+# from KB_Users.models import UserKB
+from signers.models import Signer
 from comments.models import Comment
 from history.models import TicketTermRequest
 
@@ -102,8 +103,9 @@ class Department(models.Model):
 
 
 class News(models.Model):
+    ''' model for discovering newly signed or redirected tickets.    '''
     responsibleID = models.CharField(max_length=10, db_index=True)
-    # ticketNumber - is a ticketID releation
+    # ticketNumber - is a ticketID relation
     ticketNumber = models.IntegerField()
 
 
@@ -144,13 +146,14 @@ class Ticket(models.Model):
     def __str__(self):
         return self.get_ticket_title(words=8)
 
-    def save(self, *args, **kwargs):
+    def save(self, makeNews=True, *args, **kwargs):
         super(Ticket, self).save(*args, **kwargs)
-        new = News()
-        new.responsibleID = self.responsible.id
-        new.ticketNumber = self.id
-        new.save()
-        print('Ok, news-', new.id, 'ticket.id- ', new.ticketNumber, ' responsible ID- ', new.responsibleID)
+        if makeNews:
+            new = News()
+            new.responsibleID = self.responsible.id
+            new.ticketNumber = self.id
+            new.save()
+            print('Ok, news-', new.id, 'ticket.id- ', new.ticketNumber, ' responsible ID- ', new.responsibleID)
 
     def delete(self, *args, **kwargs):
         if News.objects.filter(ticketNumber=self.id).exists():
@@ -175,12 +178,19 @@ class Ticket(models.Model):
 
     def get_ticket_expiration(self):
         delta = (self.term - date.today()).days
-        if delta > 0 :
-            exp = 'осталось {} дней'.format(str(delta))
-        elif delta==0:
-            exp = 'срок сегодня'
+        if delta == 0 :
+            return 'срок сегодня'
+        elif delta > 0:
+            exp = 'осталось {}'.format(str(delta))
         else:
-            exp = 'просрочена на {} дней'.format(str(-delta))
+            exp = 'просрочена на {}'.format(str(-delta))
+
+        if str(delta)[-1] in '567890' or delta in [11, 12, 13, 14]:
+            exp+=' дней'
+        elif str(delta)[-1] in '234':
+            exp += ' дня'
+        else:
+            exp += ' день'
         return exp
 
     def get_ticket_title(self, words=10):
@@ -210,20 +220,14 @@ class Ticket(models.Model):
         return consum_user.phone
 
     def mayBeClosed(self):
-        print('may be closed?')
         if not self.isSignedByResponsible:
-            print('not signed by resp')
             return False
         if not self.isSignedByCustomer:
-            print('not signed by custom')
             return False
         if not self.reports:
-            print('no reports')
             return False
         if self.term < date.today():
-            print('too late to close automatically')
             return False
-        print('yes!')
         return True
 
     def mayBeClosedAutomatically(self):
@@ -250,9 +254,14 @@ class Ticket(models.Model):
         except:
             return None
 
+    def signers_exist(self):
+        return Signer.objects.filter(ticket=self).exists()
+
+    def signers(self):
+        from KB_Users.models import UserKB          # may be not a good idea to import models inside/ check it later
+        return UserKB.objects.filter(id__in = Signer.objects.filter(ticket=self).values_list('user', flat=True))
 
     def closeTicket(self):
         self.status = 'closed'
-        self.term = date.today()        #may be changed later///??
+        self.term = date.today()        # may be changed later///??
         self.save()
-

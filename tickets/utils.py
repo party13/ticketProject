@@ -67,3 +67,5 @@ def found_ticket_text(quantity):
     else:
         return ' {} карточка'.format(quantity)
 
+
+

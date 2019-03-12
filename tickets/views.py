@@ -292,6 +292,21 @@ class DeleteTicket(View):
         return redirect(reverse('all'))
 
 
+class RejectTicket(View):
+    def get(self, request, number):
+        context = initial(request)
+        ticket = Ticket.objects.get(number__iexact=number)
+
+        context['ticket'] = ticket
+        return render(request, 'tickets/reject_ticket.html', context = context)
+
+    def post(self, request, number):
+        ticket = Ticket.objects.get(number__iexact=number)
+        ticket.isSignedByResponsible = False
+        ticket.save()
+        return redirect(ticket)
+
+
 class Archive(View):
     def get(self, request):
         context = initial(request)

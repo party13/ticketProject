@@ -27,7 +27,7 @@
     {% endif %}
 
     {% if ticket.status != 'closed' %}
-        {% if ticket.responsible == user_name or ticket.consumer == user_name %}
+        {% if ticket.responsible == user_name or ticket.consumer == user_name or user_name in ticket.signers %}
         <form action="{% url 'add_ticket_comment' %}" method="post">
             {% csrf_token %}
             <input type="hidden" name="tn" value="{{ticket.number}}">

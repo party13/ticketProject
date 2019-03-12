@@ -18,6 +18,7 @@ urlpatterns = [
     path('ticket/create/', CreateTicket.as_view(), name='create_ticket'),
     url('ticket/copy/(?P<number>\d+)$', CreateTicket.as_view(), name='copy'),
     url('ticket/delete/(?P<number>\d+)$', DeleteTicket.as_view(), name='delete_ticket'),
+    url('ticket/reject/(?P<number>\d+)$', RejectTicket.as_view(), name='reject_ticket'),
     url('ticket/edit/(?P<number>\d+)$', EditTicket.as_view(), name='edit_ticket'),
     path('ticket/archive/', Archive.as_view(), name='archive'),
     path('ticket/sign_ticket/', sign_ticket, name='sign_ticket'),

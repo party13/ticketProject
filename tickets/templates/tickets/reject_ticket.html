@@ -1,0 +1,22 @@
+{% extends 'tickets\ticket_detail.html'  %}
+
+{% block ticket_message %}
+
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong align="center">Вы уверены что хотите вернуть эту карточку?</strong>
+            <div class="row"><p>Возврат карточки означает, что подпись ответственного будет удалена.
+                Таким образом, {{ticket.responsible}} сможет откорректировать отчетные материалы и направить карточку Вам на подпись повторно.</p></div>
+            <div class="row">
+                <div class="col-sm" align="center">
+                    <form action="{% url 'reject_ticket' number=ticket.number %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-warning">Вернуть карточку</button>
+                    </form>
+                </div>
+                <div class="col-sm" align="center">
+                    <button class="btn btn-sm btn-success" data-dismiss="alert">Отмена</button>
+                </div>
+            </div>
+        </div>
+
+{% endblock %}
