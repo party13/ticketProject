@@ -4,14 +4,11 @@ from .models import UserKB
 from .forms import ResetPasswordForm
 from django.contrib.auth import logout, login
 from django.views.generic import View
-from django.db.models import Q
-from datetime import date, timedelta
-
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth import views as auth_views
 from django.contrib.auth import authenticate
 
-from .forms import UserForm
+from .forms import UserForm, RegisterForm
 
 
 
@@ -74,9 +71,7 @@ class MyLogin(auth_views.LoginView):
 class MyResetPassword(View):
     def get(self, request):
         print ('!my resetpassword view: GET')
-        context =  {
-            'form': ResetPasswordForm(),
-        }
+
         return render(request, 'registration/password_reset.html', {'form': ResetPasswordForm()} )
 
     def post(selfself,request):
@@ -93,10 +88,10 @@ class MyResetPassword(View):
                 else:
                     print('user is not active')
                     error ="current user is not active."
-                    raise form.ValidationError(form.error_messages['password_mismatch'],
+                    raise form.ValidationError(form.error_messages['пароли не совпадают'],
                                                code='password_mismatch' )
             except:
-                error="user not found or tabel # and @ don't match"
+                error="Пользователь не найден или не совпадает табельный и почта"
 
 
             return render(request, template_name='registration/password_reset_ok.html',
@@ -104,11 +99,11 @@ class MyResetPassword(View):
 
         return render(request, 'registration/password_reset.html', {'form': form} )
 
+
 class MyChangePassword(auth_views.PasswordChangeView):
     def get(self, request):
         user=request.user
         form = PasswordChangeForm(user=user)
-
         context = {'form':form, 'user_name':user}
         return render(request, template_name='registration/password_change.html', context=context)
 
@@ -133,4 +128,24 @@ def logout_view(request):
     print('logout function')
     logout(request)
     return render(request, 'tickets/index.html')
+
+
+class RegisterUser(View):
+    def get(self, request):
+        form = RegisterForm()
+        return render(request , 'registration/register.html', context = {'form':form})
+
+    def post(self, request):
+        form = RegisterForm(request.POST or None)
+
+        if form.is_valid():
+            username = form.cleaned_data['userName']
+            tn = form.cleaned_data['tabelNumber']
+            user = UserKB(userName=username, tabelNumber=tn)
+            user.save()
+            login(request, user)
+            return redirect('cabinet')
+        else:
+            return render(request , 'registration/register.html', context = {'form':form})
+
 
