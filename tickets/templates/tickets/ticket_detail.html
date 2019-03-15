@@ -31,10 +31,10 @@
                   </a>
               </div>
               <div class="col-sm">
-                  {% if ticket.status != 'closed' %}
-                  <a href="#redirect" class="badge badge-light">
+                  {% if ticket.status != 'closed' and ticket.responsible == user_name or user_name in ticket.signers_as_users %}
+                  <a href="{% url 'redirect_ticket' number=ticket.number %}" class="badge badge-light">
                   {% endif %}
-                      <img src="/static/img/30-30.png" width="20" height="20">
+                      <img src="/static/img/30-30.png" width="20" height="20" data-toggle="tooltip" title="Адресовать карточку">
                   </a>
               </div>
               <div class="col-sm">
@@ -165,30 +165,33 @@
                 {% for signer in ticket.signers %}
                     <tr>
                         <th>
-                            {% if signer == user_name %}
-                                <form action="##" method="post">
-                                    {% csrf_token %}
-                                   <input type="hidden"  name="tn" value="{{ticket.id}}">
-                                   <input type="hidden"  name="un" value="{{user_name.id}}">
-                                    <button class ="" type="submit" data-toggle="tooltip"
-                                data-placement="top" title="визировать">
-                                       <img src="/static/img/23.png" >{{signer}}</button>
-                                </form>
+                            {% if signer.user == user_name %}
+
+                                        <small>{{signer.user}}</small>
+
 
                             {% else %}
-                                <small>{{signer}}</small>
+                                <small>{{signer.user}}</small>
                             {% endif %}
                         </th>
-                        <th><small>{{signer.department}}</small></th>
+                        <th><small>{{signer.user.department}}</small></th>
                         <th>{% if signer.isSigned %}
                             <small>завизировано</small><img src="/static/img/5.png" width="20" height="20">
+                            {% elif signer.user == user_name %}
+                            <form action="{% url 'signer_sign' %}" method="post">
+                                {% csrf_token %}
+                               <input type="hidden"  name="tn" value="{{ticket.id}}">
+                               <input type="hidden"  name="un" value="{{user_name.id}}">
+                                <button type="submit"><img src="/static/img/23.png" width="20" height="15" data-toggle="tooltip"
+                                data-placement="top" title="визировать"></button>
+                            </form>
                             {% else %}
 
-                                <small>еще не визировал</small>
+                                <small>еще не визировал(a)</small>
 
                             {% endif %}
                         </th>
-                        <th> {% if  signer.isSigned%} {{signer.signDate}} {% endif %}</th>
+                        <th> {% if  signer.isSigned %} <small> {{ signer.signDate }} </small> {% endif %}</th>
                     </tr>
                 {% endfor %}
             {% endif %}
@@ -225,7 +228,7 @@
         <p> <strong>Отчетные материалы: </strong></p>
         <p> {% if ticket.reports %} {{ ticket.reports }} {% else %} Нет отчетных материалов {% endif %}</p>
 
-        {% if ticket.responsible == user_name or user_name in ticket.signers %}
+        {% if ticket.responsible == user_name or user_name in ticket.signers_as_users %}
             {% if not ticket.isSignedByResponsible %}
                 <form class="form-inline" action="{% url 'make_reports' %}" method="post">
                     {% csrf_token %}

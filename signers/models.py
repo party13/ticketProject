@@ -1,6 +1,8 @@
 from django.db import models
 from datetime import datetime
 
+# from tickets.models import News
+
 # Create your models here.
 
 
@@ -24,11 +26,30 @@ class Signer(models.Model):
     signDate = models.DateField(null=True)
 
 
-    def signing(self):
-        self.isSigned=True
-        self.signDate = datetime.today()
+    def __str__(self):
+        return 'User{}  ---- signed:{}'.format(self.user, self.isSigned)
 
-    def remove_sign(self):
+
+    def save(self, ticket, user, makeNews=True, *args, **kwargs):
+        self.ticket = ticket
+        self.user = user
+        super(Signer, self).save(*args, **kwargs)
+        if makeNews:
+            from tickets.models import News
+            n = News(responsibleID = user.id, ticketNumber=ticket.id)
+            n.save()
+
+
+
+    def signing(self, ticket, user):
+        self.isSigned = True
+        self.signDate = datetime.today()
+        self.save(ticket=ticket, user=user, makeNews=False)
+
+    def remove_sign(self, ticket, user):
         self.isSigned = False
+        self.signDate = None
+        self.save(ticket=ticket, user=user, makeNews=False)
+
 
 

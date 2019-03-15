@@ -1,11 +1,13 @@
 from django.db import models
 from django.shortcuts import reverse
 from datetime import date, timedelta
-from django.db.models.query import QuerySet
+# from django.db.models.query import QuerySet
+from django.db.models.query import Q
 # from KB_Users.models import UserKB
 from signers.models import Signer
 from comments.models import Comment
 from history.models import TicketTermRequest
+
 
 
 class Department(models.Model):
@@ -58,9 +60,6 @@ class Department(models.Model):
         children = Department.objects.filter(path__regex = pattern).order_by('path')
         return children.exclude(path__exact = self.path)
 
-    # def children_list(self):
-    #     return self.get_children()
-
     def get_all_children(self):
         # returns all children, including all children's children
         children = Department.objects.filter(path__startswith = self.path).order_by('path')
@@ -103,9 +102,9 @@ class Department(models.Model):
 
 
 class News(models.Model):
-    ''' model for discovering newly signed or redirected tickets.    '''
+    ''' model for discovering newly signed or redirected tickets.
+        ticketNumber - is a ticketID relation'''
     responsibleID = models.CharField(max_length=10, db_index=True)
-    # ticketNumber - is a ticketID relation
     ticketNumber = models.IntegerField()
 
 
@@ -153,7 +152,6 @@ class Ticket(models.Model):
             new.responsibleID = self.responsible.id
             new.ticketNumber = self.id
             new.save()
-            print('Ok, news-', new.id, 'ticket.id- ', new.ticketNumber, ' responsible ID- ', new.responsibleID)
 
     def delete(self, *args, **kwargs):
         if News.objects.filter(ticketNumber=self.id).exists():
@@ -186,7 +184,7 @@ class Ticket(models.Model):
             exp = 'просрочена на {}'.format(str(-delta))
 
         if str(delta)[-1] in '567890' or delta in [11, 12, 13, 14]:
-            exp+=' дней'
+            exp += ' дней'
         elif str(delta)[-1] in '234':
             exp += ' дня'
         else:
@@ -258,8 +256,20 @@ class Ticket(models.Model):
         return Signer.objects.filter(ticket=self).exists()
 
     def signers(self):
-        from KB_Users.models import UserKB          # may be not a good idea to import models inside/ check it later
-        return UserKB.objects.filter(id__in = Signer.objects.filter(ticket=self).values_list('user', flat=True))
+        # returns Signers objects
+        from .utils import ticket_signers
+        return ticket_signers(self)
+
+    def signers_as_users(self):
+        # returns signers as KB_Users
+        from .utils import ticket_signer_as_users
+        return ticket_signer_as_users(self)
+
+
+    def signed_by(self, user):
+        s = Signer.objects.filter(Q(ticket=self) and Q(user=user)).first()
+        return s.isSigned
+
 
     def closeTicket(self):
         self.status = 'closed'

@@ -25,6 +25,7 @@ urlpatterns = [
     path('users/', include('KB_Users.urls')),
     path('comments/', include('comments.urls')),
     path('history/', include('history.urls')),
+    path('signers/', include('signers.urls')),
     # path('', redirect(to='404.html')),
 
 ]

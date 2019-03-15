@@ -1,13 +1,9 @@
 # Create your views here.
-#
-# from django.contrib import sessions
-# from django.forms import ModelMultipleChoiceField
-# from django.http import HttpResponse
+
 from django.contrib.auth.mixins import LoginRequiredMixin
-from KB_Users.models import UserKB
 from django.shortcuts import render, redirect, reverse
-from .models import Ticket, News
-from .forms import CreateTicketForm
+# from .models import Ticket, News
+from .forms import CreateTicketForm, RedirectTicketForm
 from .utils import *
 from django.views.generic import View
 from django.db.models import Q
@@ -18,7 +14,6 @@ newNumber = generate_number()
 
 def search_results(request):
     context = initial(request)
-
     search_query = request.GET.get('search', '').strip()
     if search_query != "":
         if search_query.isdigit():
@@ -32,21 +27,22 @@ def search_results(request):
             searched_themes=set(tickets.values_list('theme', flat=True))
             text_result = 'Найдено' + found_ticket_text(total)
 
-        paginator = Paginator(tickets, 10)
-        page_number = request.GET.get('page', 1)
-        page = paginator.page(page_number)
-        is_paginated = page.has_other_pages()
-        prev_url = '?search={}&page={}'.format( search_query, page.previous_page_number()) if page.has_previous() else ''
-        next_url = '?search={}&page={}'.format(search_query, page.next_page_number()) if page.has_next() else ''
-
         context['tickets'] = tickets
         context['themes'] = searched_themes
         context['search_text'] = search_query
         context['text_result'] = text_result
+
+        paginator = Paginator(tickets, 10)
+        page_number = request.GET.get('page', 1)
+        page = paginator.page(page_number)
+        is_paginated = page.has_other_pages()
+        prev_url = '?page={}&search={}'.format(page.previous_page_number(), search_query) if page.has_previous() else ''
+        next_url = '?page={}&search={}'.format(page.next_page_number(), search_query) if page.has_next() else ''
         context['page_object'] = page
         context['is_paginated'] = is_paginated
         context['prev_url'] = prev_url
         context['next_url'] = next_url
+
 
         return render(request, 'tickets/search_results.html', context = context)
     else:
@@ -85,14 +81,7 @@ def make_reports(request):
     return redirect(ticket_q.first())
 
 
-# def share_ticket(request):
-#     number = request.GET.get('number', '')
-#     ticket = Ticket.objects.get(number=number)
-#     url = number
-#     return redirect(ticket)
-
-
-class MyTicketsList(View):
+class MyTickets(View):
     def get(self, request):
         context = initial(request)
         tickets = context.get('tickets')
@@ -103,21 +92,10 @@ class MyTicketsList(View):
             tickets = tickets.filter(theme=theme_filter)
         if user_filter:
             tickets = tickets.filter(responsible=user_filter)
-
         if tickets:
             text_result = found_ticket_text(len(tickets))
-            paginator = Paginator(tickets, 15)
-            page_number = request.GET.get('page', 1)
-            page = paginator.get_page(page_number)
-            is_paginated = page.has_other_pages()
-            prev_url = '?page={}'.format(page.previous_page_number()) if page.has_previous() else ''
-            next_url = '?page={}'.format(page.next_page_number()) if page.has_next() else ''
-
             context['text_result'] = text_result
-            context['page_object'] = page
-            context['is_paginated'] = is_paginated
-            context['prev_url'] = prev_url
-            context['next_url'] = next_url
+            context = paginate_tickets(request, tickets, context)
         return render(request, 'tickets/index.html', context=context)
 
 
@@ -143,22 +121,10 @@ class MyDepartmentTickets(View):
 
         text_result = found_ticket_text(len(tickets))
         themes = set(tickets.values_list('theme', flat=True))
-
-        paginator = Paginator(tickets, 15)
-        page_number = request.GET.get('page', 1)
-        page = paginator.get_page(page_number)
-        is_paginated = page.has_other_pages()
-        prev_url = '?page={}'.format(page.previous_page_number()) if page.has_previous() else ''
-        next_url = '?page={}'.format(page.next_page_number()) if page.has_next() else ''
-
         context['tickets'] = tickets
         context['themes'] = themes
         context['text_result'] = text_result
-        context['page_object'] = page
-        context['is_paginated'] = is_paginated
-        context['prev_url'] = prev_url
-        context['next_url'] = next_url
-
+        context = paginate_tickets(request, tickets, context)
         return render(request, 'tickets/index.html', context=context)
 
 
@@ -175,18 +141,7 @@ class NewTickets(View):
             context['text_result'] = found_ticket_text(len(tickets))
             context['updates'] = len(news)
 
-        paginator = Paginator(tickets, 15)
-        page_number = request.GET.get('page', 1)
-        page = paginator.get_page(page_number)
-        is_paginated = page.has_other_pages()
-        prev_url = '?page={}'.format(page.previous_page_number()) if page.has_previous() else ''
-        next_url = '?page={}'.format(page.next_page_number()) if page.has_next() else ''
-
-        context['page_object'] = page
-        context['is_paginated'] = is_paginated
-        context['prev_url'] = prev_url
-        context['next_url'] = next_url
-
+        context = paginate_tickets(request, tickets, context)
         return render(request, 'tickets/index.html', context=context)
 
 
@@ -227,9 +182,13 @@ class CreateTicket(LoginRequiredMixin, View):
     def post(self, request):
         user = request.user
         form = CreateTicketForm(user, request.POST or None)
+        print(form.data)
 
         if form.is_valid():
+            # for id in form.data.getlist('responsible'):
+            # responsible = UserKB.objects.get(id=id)
             new_ticket = form.save(commit=False)
+            # new_ticket.responsible = responsible
             new_ticket.consumer = user
             new_ticket.osn = 'Поручение от {}'.format(user)
 
@@ -237,7 +196,7 @@ class CreateTicket(LoginRequiredMixin, View):
                 try:
                     nmbr = next(newNumber)
                     new_ticket.number = nmbr
-                    new_ticket.save()
+                    # new_ticket.save()
                 except:
                     nmbr = next(newNumber)
             return redirect(new_ticket)
@@ -296,7 +255,6 @@ class RejectTicket(View):
     def get(self, request, number):
         context = initial(request)
         ticket = Ticket.objects.get(number__iexact=number)
-
         context['ticket'] = ticket
         return render(request, 'tickets/reject_ticket.html', context = context)
 
@@ -307,7 +265,30 @@ class RejectTicket(View):
         return redirect(ticket)
 
 
-class Archive(View):
+class RedirectTicket(View):
+    def get(self, request, number):
+        context = initial(request)
+        ticket = Ticket.objects.get(number__iexact=number)
+        user = request.user
+        context['ticket'] = ticket
+        context['form'] = RedirectTicketForm(user=user)
+        return render(request, 'tickets/redirect_ticket.html', context = context)
+
+    def post(self, request, number):
+        ticket = Ticket.objects.get(number__iexact=number)
+        user = request.user
+        form = RedirectTicketForm(user, request.POST or None)
+        print('get from from:')
+
+        for id in form.data.getlist('responsible'):
+            signer = UserKB.objects.get(id=id)
+            s = Signer()
+            s.save(user=signer, ticket=ticket)
+
+        return redirect(ticket)
+
+
+class ArchivedTickets(View):
     def get(self, request):
         context = initial(request)
         username = context.get('user_name')
@@ -324,29 +305,16 @@ class Archive(View):
             archive_tickets = archive_tickets.filter(responsible=user)
 
         text_result = found_ticket_text(len(archive_tickets))
-
-        paginator = Paginator(archive_tickets, 15)
-        page_number = request.GET.get('page', 1)
-        page = paginator.get_page(page_number)
-        is_paginated = page.has_other_pages()
-        prev_url = '?page={}'.format(page.previous_page_number()) if page.has_previous() else ''
-        next_url = '?page={}'.format(page.next_page_number()) if page.has_next() else ''
-
         context['tickets'] = archive_tickets
         context['text_result'] = text_result
-        context['page_object'] = page
-        context['is_paginated'] = is_paginated
-        context['prev_url'] = prev_url
-        context['next_url'] = next_url
-
-
+        context = paginate_tickets(request, archive_tickets, context)
         return render(request, 'tickets/archive.html', context=context)
 
     def post(self, request):
         pass
 
 
-class TicketPlan(View):
+class PlannedTickets(View):
     def get(self, request, days):
         context = initial(request)
         username = context.get('username')
@@ -369,8 +337,8 @@ class TicketPlan(View):
         page_number = request.GET.get('page', 1)
         page = paginator.get_page(page_number)
         is_paginated = page.has_other_pages()
-        prev_url = '?plan={}&page={}'.format(days, page.previous_page_number()) if page.has_previous() else ''
-        next_url = '?plan={}&page={}'.format(days, page.next_page_number()) if page.has_next() else ''
+        prev_url = '?page={}&plan={}'.format( page.previous_page_number(), days) if page.has_previous() else ''
+        next_url = '?page={}&plan={}'.format( page.next_page_number(), days,) if page.has_next() else ''
 
         context['tickets'] = planned_ticket
         context['days'] = days
@@ -379,46 +347,30 @@ class TicketPlan(View):
         context['is_paginated'] = is_paginated
         context['prev_url'] = prev_url
         context['next_url'] = next_url
-
-
         return render(request, 'tickets/plan.html', context=context)
 
 
-class Report (View):
+class ReportedTickets (View):
     def get(self, request):
         context = initial(request)
         username = context.get('username') or None
         days = request.GET.get('report', '') or None
-
         td = date.today()
         reported_tickets = Ticket.objects.filter(Q(term__range=(td - timedelta(int(days)), td )) & Q(status='closed') & Q(consumer=username)) # to be changed later
-
         theme_filter = request.GET.get('theme', '')
         user_filter = request.GET.get('user', '')
-
         if theme_filter:
             reported_tickets = reported_tickets.filter(theme__iexact=theme_filter)
         if user_filter:
             user = UserKB.objects.get(id=user_filter)
             reported_tickets = reported_tickets.filter(responsible=user)
-
         text_result = found_ticket_text(len(reported_tickets))
-
-        paginator = Paginator(reported_tickets, 15)
-        page_number = request.GET.get('page', 1)
-        page = paginator.get_page(page_number)
-        is_paginated = page.has_other_pages()
-        prev_url = '?page={}'.format(page.previous_page_number()) if page.has_previous() else ''
-        next_url = '?page={}'.format(page.next_page_number()) if page.has_next() else ''
-
         context['tickets'] = reported_tickets
         context['days'] = days
         context['text_result'] = text_result
-        context['page_object'] = page
-        context['is_paginated'] = is_paginated
-        context['prev_url'] = prev_url
-        context['next_url'] = next_url
+        context = paginate_tickets(request, reported_tickets, context)
         return render(request, 'tickets/report.html', context=context)
 
     def post(self, request):
-        return
+        context = initial(request)
+        return render(request, 'tickets/report.html', context=context)

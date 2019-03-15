@@ -1,5 +1,4 @@
 from django.db import models
-# from tickets.models import Ticket
 from datetime import datetime
 
 class Comment(models.Model):
@@ -20,12 +19,26 @@ class Comment(models.Model):
         return ' {} - {}'.format(self.text, self.when)
 
     def save(self,  *args, **kwargs):
-
         self.when = datetime.today()
-        # self.ticket = ticket
-        # self.user=user
         super(Comment, self).save(*args, **kwargs)
-        print('ok, cmnt')
+
+#
+# class Report(models.Model):
+#     ticket = models.ForeignKey('tickets.Ticket',
+#                                  on_delete='CASCADE',
+#                                  related_name='to_ticket',
+#                                  verbose_name='к карточке')
+#
+#     user = models.ForeignKey('KB_Users.UserKB',
+#                              on_delete='CASCADE',
+#                              related_name='from_user',
+#                              verbose_name='от пользователя')
+#
+#     file = models.FileField(upload_to='reports/%Y/%m/%d', null=True)
+#
+#     text = models.TextField(null=True)
+#
+
 
 
 

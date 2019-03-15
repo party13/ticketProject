@@ -1,0 +1,34 @@
+{% extends 'tickets\ticket_detail.html'  %}
+
+{% block ticket_message %}
+
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <strong align="center">{{user_name.firstName}} {{user_name.fathName}}, Вы собираетесь адресовать эту карточку своим подчиненным</strong>
+            <div class="row"><p>Это означает, что выбранные Вами сотрудники будут добавлены в качестве подписантов этой карточки
+                Таким образом, у каждого из них отобразится эта карточка, и он(она) сможет
+                    добавлять отчетные материалы
+                    добавлять комментарии
+                    поставить свою визу
+                </p></div>
+            <div class="row">
+                <div class="col-sm" align="center">
+                    <form action="{% url 'redirect_ticket' number=ticket.number %}" method="post">
+                    {% csrf_token %}
+                        {% for field in form %}
+
+                        <div class="row">
+                            <div class="col-sm"> {{ field.label }}:</div>
+                            <div class="col-sm"> {{ field }}      </div>
+                        </div>
+
+                        {% endfor %}
+                    <button type="submit" class="btn btn-sm btn-warning">Адресовать карточку</button>
+                    </form>
+                </div>
+                <div class="col-sm" align="center">
+                    <button class="btn btn-sm btn-success" data-dismiss="alert">Отмена</button>
+                </div>
+            </div>
+        </div>
+
+{% endblock %}

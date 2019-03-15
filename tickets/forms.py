@@ -1,7 +1,7 @@
 from django.forms import ModelForm, Form
 #     ModelMultipleChoiceField
 from django import forms
-from django.forms import SelectDateWidget, CheckboxSelectMultiple
+from django.forms import SelectDateWidget, CheckboxSelectMultiple , SelectMultiple
 from django.contrib.admin.widgets import AdminDateWidget
 from .models import Ticket
 from datetime import date
@@ -40,8 +40,8 @@ class CreateTicketForm(ModelForm):
         autocomplete_fields = ['theme']
 
         widgets = {
-             'term': AdminDateWidget(),
-            # 'responsible' : CheckboxSelectMultiple
+            'term': AdminDateWidget(),
+            # 'responsible' : SelectMultiple
                    }
 
 
@@ -74,12 +74,14 @@ class TermConfirmForm(ModelForm):
         }
 
 
-class ShareTicketForm(Form):
-    def save(self, user, link):
-        email = self.cleaned_data["email"]
-        subject = 'Карточка'
-        from_email = user.email
-        body = r'Карточка {}'.format(link)
+class RedirectTicketForm(ModelForm):
+    def __init__(self, user=None, *args, **kwargs):
+        super(RedirectTicketForm, self).__init__(*args, **kwargs)
+        if user:
+            self.fields['responsible'].queryset = user.get_children() or user.get_my_workers()
 
-        email_message = EmailMultiAlternatives(subject, body, from_email, [email])
-        email_message.send()
+    class Meta:
+        model = Ticket
+        fields = ['responsible']
+        autocomplete_fields = ['responsible']
+        widgets = {'responsible': SelectMultiple}
